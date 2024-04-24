@@ -97,7 +97,7 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
         supportActionBar?.hide()
         setContentView(R.layout.activity_chat_screen)
         QiSDK.register(this, this)
-        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
+        inactivityTimer = InactivityTimer(this, 420000)
 
 
         toolbarTitle = findViewById(R.id.toolbarTitle)

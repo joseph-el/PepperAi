@@ -43,18 +43,17 @@ class HomeScreen : AppCompatActivity() , RobotLifecycleCallbacks {
         supportActionBar?.hide()
         setContentView(R.layout.activity_home_screen)
         QiSDK.register(this, this)
-        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
+        inactivityTimer = InactivityTimer(this, 420000)
 
         val start_chat_button: Button = findViewById(R.id.start_chat_button)
         val take_picture_button: Button = findViewById(R.id.take_picture_button)
 
         start_chat_button.setOnClickListener {
-            //inactivityTimer.stop()
             val intent = Intent(this, SelectContextScreen::class.java)
             startActivity(intent)
         }
         take_picture_button.setOnClickListener {
-            //inactivityTimer.stop()
+
             val intent = Intent(this, TakePictureScreen::class.java)
             startActivity(intent)
         }
@@ -78,7 +77,7 @@ class HomeScreen : AppCompatActivity() , RobotLifecycleCallbacks {
             .build()
 
         val animation_1: Animation = AnimationBuilder.with(qiContext)
-            .withResources(R.raw.hello_a001).build()
+            .withResources(R.raw.show_tablet_01).build()
         val animate_1: Animate = AnimateBuilder.with(qiContext)
             .withAnimation(animation_1)
             .build()

@@ -54,7 +54,7 @@ class SelectContextScreen : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
+        inactivityTimer = InactivityTimer(this, 420000)
         supportActionBar?.hide()
 
         setContentView(R.layout.activity_select_context_screen)

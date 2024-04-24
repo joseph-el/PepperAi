@@ -82,7 +82,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
-        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
+        inactivityTimer = InactivityTimer(this, 420000)
         supportActionBar?.hide()
         setContentView(R.layout.activity_take_picture_screen)
 
