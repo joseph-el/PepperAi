@@ -1,5 +1,6 @@
 package com.example
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
@@ -10,9 +11,11 @@ import androidx.core.view.WindowInsetsCompat
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
+import com.example.Screen.HomeScreen
+import com.example.Screen.WelcomeScreen
 import com.example.empathymap.R
 
-class PepperMainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
+class PepperMainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,19 +25,11 @@ class PepperMainActivity : AppCompatActivity(), RobotLifecycleCallbacks {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
-
         supportActionBar?.hide()
         setContentView(R.layout.activity_pepper_main)
-        QiSDK.register(this, this)
+
+        val intent = Intent(this, WelcomeScreen::class.java)
+        startActivity(intent)
     }
 
-
-
-
-    override fun onRobotFocusGained(qiContext: QiContext?) {
-
-
-    }
-    override fun onRobotFocusLost() {}
-    override fun onRobotFocusRefused(reason: String?) {}
 }

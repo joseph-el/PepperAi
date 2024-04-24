@@ -102,6 +102,8 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
             permission = granted
         }
 
+
+
         voice_button.setOnTouchListener { view, motionEvent ->
 
                 when (motionEvent.action) {
@@ -132,7 +134,7 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
                 }
         }
 
-        sendButton.setOnClickListener {
+        Back_button.setOnClickListener {
             val intent = Intent(this, HomeScreen::class.java)
             startActivity(intent)
         }
