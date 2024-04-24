@@ -26,7 +26,9 @@
         <activity android:name="com.example.Screen.AboutScreen.AboutScreen_4"/>
         <activity android:name="com.example.Screen.AboutScreen.AboutScreen_5"/>
         <activity android:name="com.example.Screen.TakePictureScreen"/>
-        <activity android:name="com.example.Screen.ChatScreen"/>
+        <activity android:name="com.example.Screen.ChatScreen"
+            android:windowSoftInputMode="adjustResize"/>
+
         <activity android:name="com.example.Screen.WelcomeScreen"/>
         <activity android:name="com.example.Screen.HomeScreen"/>
         <activity android:name="com.example.Screen.SelectContextScreen"/>
