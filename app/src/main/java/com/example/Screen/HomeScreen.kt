@@ -50,7 +50,9 @@ class HomeScreen : AppCompatActivity() , RobotLifecycleCallbacks {
     }
 
     // u can choice by something
-    override fun onRobotFocusGained(qiContext: QiContext?) {}
+    override fun onRobotFocusGained(qiContext: QiContext?) {
+        // start chat or u can take pic
+    }
 
     override fun onRobotFocusLost() {}
 

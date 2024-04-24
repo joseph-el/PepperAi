@@ -1,21 +1,19 @@
 package com.example.Core
 
-import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.Screen.ToShortMessage
 import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 
+var category: Category? = null
+
 class Artificial_intelligence_model() : ViewModel() {
 
-    // Setting Api Key
     val generativeMultiModal = GenerativeModel(
         modelName = "gemini-pro-vision",
         apiKey = "AIzaSyDrjE857ITiU4y2i1Do7KEz_50dzFITnbY"
@@ -31,30 +29,22 @@ class Artificial_intelligence_model() : ViewModel() {
         _uiState.value = SummarizeUiState.Initial
     }
 
-    fun summarize(inputText: String, images: List<Bitmap>, IsGetShortMessage: Boolean) {
+    fun summarize(inputText: String, IsGetShortMessage: Boolean) {
 
         if (IsGetShortMessage) {
-            var Brief = "Give the Brief of Brief of this text and answer me without Markdown, here the text: "
-            GeneratingMessage(Brief + inputText, true)
-            Log.d("The brief: ", "${ToShortMessage}")
+
+            // please generate a concise summary that captures the essential points
+            var Brief = "As Pepper robot, Based on the detailed response provided by Pepper: '[${inputText}]', please generate a brief summary of the key points. Please respond in plain text without using any Markdown formatting or links."
+            GeneratingMessage(Brief, IsGetShortMessage)
+            //Log.d("The brief: ", "${ToShortMessage}")
             return
         }
+        val _category = category
+        val categoryInfo = getCategoryInfo(_category as Category)
+        val prompt = "As Pepper robot, Based on the description of the [${category}] category, which includes [${categoryInfo}],please provide an answer to the following user query: [${inputText}].If the query does not align with the category description,please utilize creative reasoning to offer a smart and relevant response, Please respond in plain text without using any Markdown formatting or links."
         _uiState.value = SummarizeUiState.Loading
 
-        val context = "Education: "
-
-        /*
-        val prompt = content {
-
-            if (images.isNotEmpty()) {
-                images.forEach { bitmap -> image(bitmap) }
-            }
-            text(userInputWithContext)
-        }
-
-         */
-
-        GeneratingMessage("$context: $inputText", false)
+        GeneratingMessage(prompt, false)
     }
         fun GeneratingMessage(prompt: String, IsGetShortMessage: Boolean) {
             viewModelScope.launch {
@@ -66,17 +56,17 @@ class Artificial_intelligence_model() : ViewModel() {
                     }
                     if (!IsGetShortMessage)
                         _uiState.value = SummarizeUiState.Success(fulltext)
-                    else
-                        ToShortMessage = fulltext
+                    else {
+                        _uiState.value = SummarizeUiState.Prompt(fulltext)
+
+                    }
                 }
             } catch (e: Exception) {
-                var dd = e.localizedMessage?: " " + " pepper Execp"
                 if (!IsGetShortMessage)
-                    _uiState.value = SummarizeUiState.Error(dd)
+                    _uiState.value = SummarizeUiState.Error(e.localizedMessage)
                 else
-                    ToShortMessage = dd
+                    _uiState.value = SummarizeUiState.Prompt(e.localizedMessage)
             }
         }
-
     }
 }

@@ -47,7 +47,7 @@ val IS_LAST_ITEM: Int =  (1 shl 1)
 val IS_NOT_ROBOT: Int =  (1 shl 2)
 val IS_IS_LOADING: Int = (1 shl 3)
 
-var ToShortMessage:String = ""
+
 
 class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
 
@@ -63,9 +63,8 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
     private var messageList = mutableListOf<Pair<Int, String>>()
     private var EditMessageState by mutableStateOf(false)
     private var pressed by mutableStateOf(false)
-    private lateinit var MessageToSay: String
     private var qiContext: QiContext? = null
-
+    var ToShortMessage:String = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -151,7 +150,7 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
                 scrollView.post {
                     scrollView.fullScroll(ScrollView.FOCUS_DOWN)
                 }
-                SviewModel.summarize(message, emptyList(), false)
+                SviewModel.summarize(message, false)
                 messageInput.text.clear()
             }
         }
@@ -166,7 +165,7 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
             viewModel.state.collect { state ->
                 if (state.display.isNotEmpty()) {
                     messageList.add( (IS_LAST_ITEM or IS_NOT_ROBOT)  to  state.display)
-                    SviewModel.summarize(state.display, emptyList(), false)
+                    SviewModel.summarize(state.display, false)
                     SviewModel.resetUiStateToInitial()
                 }
             }
@@ -177,36 +176,44 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
 
     private fun renderChatContent(newState: SummarizeUiState) {
 
+        var IsSay: Boolean = false
+
         var state =  when (newState) {
             is SummarizeUiState.Initial -> {false}
             is SummarizeUiState.Loading -> {true}
-            is SummarizeUiState.Prompt  -> {false}
+            is SummarizeUiState.Prompt  -> {
+                ToShortMessage = newState.prompt_edit
+                IsSay = true
+                true
+            }
             is SummarizeUiState.Success -> {
                 UpdateNode( IS_ROBOT )
                 messageList.add((IS_ROBOT or IS_LAST_ITEM) to newState.outputText)
-                SviewModel.summarize(newState.outputText, emptyList(), true)
+                SviewModel.summarize(newState.outputText, true)
                 SviewModel.resetUiStateToInitial()
-                MessageToSay = newState.outputText
                 false
             }
             is SummarizeUiState.Error   -> {
                 UpdateNode(IS_ROBOT)
                 messageList.add((IS_ROBOT or IS_LAST_ITEM) to newState.errorMessage)
-                MessageToSay = newState.errorMessage
                 SviewModel.resetUiStateToInitial()
                 false
             }
         }
-        if (!state) {
-            chatLayout.removeAllViews()
-            messageList.forEach { (flag, message) ->
-                addMessage(message, flag)
+        if (!IsSay) {
+            if (!state) {
+                chatLayout.removeAllViews()
+                messageList.forEach { (flag, message) ->
+                    addMessage(message, flag)
+                }
+            } else {
+                addMessage("", IS_IS_LOADING)
+            }
+            scrollView.post {
+                scrollView.fullScroll(ScrollView.FOCUS_DOWN)
             }
         } else {
-            addMessage("", IS_IS_LOADING)
-        }
-        scrollView.post {
-            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
+            this.qiContext?.let { QiSDK.register(this, this) }
         }
 
     }
@@ -227,7 +234,7 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
             buttonEffect.setOnClickListener {
                 if (flag and IS_ROBOT != 0) {
                     removeLastAddedNodes(false)
-                    SviewModel.summarize( messageList[findLastIndexOfFlag(IS_NOT_ROBOT)].second , emptyList(), false)
+                    SviewModel.summarize( messageList[findLastIndexOfFlag(IS_NOT_ROBOT)].second, false)
                 }
                 else {
                     messageInput.setText( messageList[findLastIndexOfFlag(IS_NOT_ROBOT)].second )
@@ -294,17 +301,13 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
     }
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
-        /*
+
         this.qiContext = qiContext
         val Make_Robot_Say = SayBuilder.with(qiContext)
             .withText(ToShortMessage)
             .build()
-
         Make_Robot_Say.run()
         ToShortMessage = ""
-
-         */
-
     }
     override fun onRobotFocusLost() {
         this.qiContext = null

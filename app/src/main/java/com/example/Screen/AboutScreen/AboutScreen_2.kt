@@ -39,11 +39,11 @@ class AboutScreen_2 : AppCompatActivity(), RobotLifecycleCallbacks {
         val take_picture_button: Button = findViewById(R.id.take_picture_button)
 
         start_chat_button.setOnClickListener {
-            val intent = Intent(this, SelectContextScreen::class.java)
+            val intent = Intent(this, AboutScreen_3::class.java)
             startActivity(intent)
         }
         take_picture_button.setOnClickListener {
-            val intent = Intent(this, TakePictureScreen::class.java)
+            val intent = Intent(this, AboutScreen_1::class.java)
             startActivity(intent)
         }
 

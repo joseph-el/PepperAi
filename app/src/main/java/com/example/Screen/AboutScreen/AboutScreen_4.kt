@@ -15,8 +15,10 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
+import com.example.Screen.HomeScreen
 import com.example.Screen.SelectContextScreen
 import com.example.Screen.TakePictureScreen
+import com.example.Screen.WelcomeScreen
 import com.example.empathymap.R
 import com.example.empathymap.databinding.ActivityAboutScreen4Binding
 
@@ -35,6 +37,7 @@ class AboutScreen_4 : AppCompatActivity(), RobotLifecycleCallbacks {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
+
         supportActionBar?.hide()
         setContentView(R.layout.activity_home_screen)
         QiSDK.register(this, this)
@@ -42,11 +45,11 @@ class AboutScreen_4 : AppCompatActivity(), RobotLifecycleCallbacks {
         val take_picture_button: Button = findViewById(R.id.take_picture_button)
 
         start_chat_button.setOnClickListener {
-            val intent = Intent(this, SelectContextScreen::class.java)
+            val intent = Intent(this, HomeScreen::class.java)
             startActivity(intent)
         }
         take_picture_button.setOnClickListener {
-            val intent = Intent(this, TakePictureScreen::class.java)
+            val intent = Intent(this, WelcomeScreen::class.java)
             startActivity(intent)
         }
 
