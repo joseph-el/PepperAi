@@ -3,6 +3,37 @@ package com.example.Utils
 import android.os.Handler
 import android.os.Looper
 
+import android.app.Activity
+import android.content.Intent
+import com.example.Screen.WelcomeScreen
+
+class InactivityTimer(private val activity: Activity, private val timeout: Long) {
+    private var handler: Handler = Handler(Looper.getMainLooper())
+    private var runnable: Runnable = Runnable {
+        val intent = Intent(activity, WelcomeScreen::class.java)
+        activity.startActivity(intent)
+    }
+
+    init {
+        resetTimer()
+    }
+
+    fun onUserInteraction() {
+        resetTimer()
+    }
+
+    private fun resetTimer() {
+        handler.removeCallbacks(runnable)
+        handler.postDelayed(runnable, timeout)
+    }
+
+    fun stop() {
+        handler.removeCallbacks(runnable)
+    }
+}
+
+/*
+
 class UserActivityManager private constructor() {
     private var isActive = false
 
@@ -44,7 +75,10 @@ class UserActivityManager private constructor() {
 
     // Method to navigate to main home screen (replace with your actual logic)
     private fun navigateToMainHomeScreen() {
-        println("Navigating to main home screen...")
+
         // Code to navigate to main home screen goes here
     }
 }
+
+
+ */

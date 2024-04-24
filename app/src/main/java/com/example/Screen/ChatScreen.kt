@@ -102,8 +102,6 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
             permission = granted
         }
 
-
-
         voice_button.setOnTouchListener { view, motionEvent ->
 
                 when (motionEvent.action) {

@@ -15,9 +15,14 @@ import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
 import com.aldebaran.qi.sdk.`object`.humanawareness.HumanAwareness
 import com.example.Screen.AboutScreen.AboutScreen_1
+import com.example.Utils.InactivityTimer
 import com.example.empathymap.R
 
+
+
 class HomeScreen : AppCompatActivity() , RobotLifecycleCallbacks {
+    private lateinit var inactivityTimer: InactivityTimer
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +40,8 @@ class HomeScreen : AppCompatActivity() , RobotLifecycleCallbacks {
         supportActionBar?.hide()
         setContentView(R.layout.activity_home_screen)
         QiSDK.register(this, this)
+        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
+
         val start_chat_button: Button = findViewById(R.id.start_chat_button)
         val take_picture_button: Button = findViewById(R.id.take_picture_button)
 
@@ -48,6 +55,17 @@ class HomeScreen : AppCompatActivity() , RobotLifecycleCallbacks {
         }
 
     }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        inactivityTimer.onUserInteraction()
+    }
+    override fun onDestroy() {
+        inactivityTimer.stop()
+        super.onDestroy()
+    }
+
+
 
     // u can choice by something
     override fun onRobotFocusGained(qiContext: QiContext?) {

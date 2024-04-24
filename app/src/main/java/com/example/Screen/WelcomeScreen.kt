@@ -21,7 +21,12 @@ import com.aldebaran.qi.sdk.`object`.human.Human
 import com.aldebaran.qi.sdk.`object`.humanawareness.HumanAwareness
 import java.util.concurrent.Future
 import com.example.Screen.AboutScreen.AboutScreen_1
+import com.example.Utils.InactivityTimer
+
 import java.util.concurrent.TimeUnit
+
+
+
 
 class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
     private var humanAwareness: HumanAwareness? = null
@@ -29,7 +34,6 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
     private var AttentionHumanState = 0
     private var lastDetectedTime: Long = 0
     private var timeoutOccurred: Boolean = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -134,6 +138,7 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
             AttentionHumanState += if (attentionState == AttentionState.UNKNOWN) 1 else 0
         }
     }
+
 
     private fun refocusIfTimeout() {
         val currentTime = System.currentTimeMillis()

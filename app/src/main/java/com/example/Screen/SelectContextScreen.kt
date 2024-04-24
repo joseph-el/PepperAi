@@ -43,6 +43,7 @@ class SelectContextScreen : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
         supportActionBar?.hide()
+
         setContentView(R.layout.activity_select_context_screen)
         educationButton = findViewById(R.id.education_button)
         adventureButton = findViewById(R.id.adventure_button)
