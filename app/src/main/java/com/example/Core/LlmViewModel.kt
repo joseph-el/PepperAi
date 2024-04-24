@@ -34,9 +34,9 @@ class Artificial_intelligence_model() : ViewModel() {
         if (IsGetShortMessage) {
 
             // please generate a concise summary that captures the essential points
-            var Brief = "As Pepper robot, Based on the detailed response provided by Pepper: '[${inputText}]', please generate a brief of brief and do not change the speaker's form. Please respond in plain text without using any Markdown formatting or links."
+            var Brief = "As Pepper robot, Based on the detailed response provided by Pepper: '[${inputText}]', please generate a concise summary that captures the essential points and do not change the speaker's form. Please respond in plain text without using any Markdown formatting or links."
             GeneratingMessage(Brief, IsGetShortMessage)
-            //Log.d("The brief: ", "${ToShortMessage}")
+
             return
         }
         val _category = category
