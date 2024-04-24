@@ -29,6 +29,8 @@ class Artificial_intelligence_model() : ViewModel() {
         _uiState.value = SummarizeUiState.Initial
     }
 
+
+
     fun summarize(inputText: String, IsGetShortMessage: Boolean) {
 
         if (IsGetShortMessage) {

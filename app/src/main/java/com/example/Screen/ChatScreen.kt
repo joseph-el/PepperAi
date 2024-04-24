@@ -300,11 +300,21 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
         }
     }
 
+    fun markdownToPlainText(markdown: String): String {
+        return markdown
+            .replace(Regex("\\*\\*(.*?)\\*\\*"), "$1")
+            .replace(Regex("\\*(.*?)\\*"), "$1")
+            .replace(Regex("\\[(.*?)\\]\\(.*?\\)"), "$1")
+            .replace(Regex("`{1,3}(.*?)`{1,3}"), "$1")
+            .replace(Regex("\n"), " ")
+    }
+
     override fun onRobotFocusGained(qiContext: QiContext?) {
 
         this.qiContext = qiContext
+
         val Make_Robot_Say = SayBuilder.with(qiContext)
-            .withText(ToShortMessage)
+            .withText(markdownToPlainText(ToShortMessage))
             .build()
         Make_Robot_Say.run()
         ToShortMessage = ""
