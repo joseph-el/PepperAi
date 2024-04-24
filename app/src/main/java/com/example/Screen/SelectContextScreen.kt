@@ -14,10 +14,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.Core.Category
 import com.example.Core.category
+import com.example.Utils.InactivityTimer
 import com.example.empathymap.R
 
 class SelectContextScreen : AppCompatActivity() {
 
+    private lateinit var inactivityTimer: InactivityTimer
     private lateinit var educationButton: Button
     private lateinit var adventureButton: Button
     private lateinit var comedyButton: Button
@@ -28,6 +30,15 @@ class SelectContextScreen : AppCompatActivity() {
     private lateinit var bookButton: Button
     private lateinit var startChatButton: Button
     private lateinit var textView: TextView
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        inactivityTimer.onUserInteraction()
+    }
+    override fun onDestroy() {
+        inactivityTimer.stop()
+        super.onDestroy()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +53,8 @@ class SelectContextScreen : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
+
+        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
         supportActionBar?.hide()
 
         setContentView(R.layout.activity_select_context_screen)

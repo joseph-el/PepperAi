@@ -20,9 +20,22 @@ import com.aldebaran.qi.sdk.`object`.actuation.Animate
 import com.aldebaran.qi.sdk.`object`.actuation.Animation
 import com.example.Screen.SelectContextScreen
 import com.example.Screen.TakePictureScreen
+import com.example.Utils.InactivityTimer
 import com.example.empathymap.R
 
 class AboutScreen_1 : AppCompatActivity(), RobotLifecycleCallbacks {
+
+    private lateinit var inactivityTimer: InactivityTimer
+
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        inactivityTimer.onUserInteraction()
+    }
+    override fun onDestroy() {
+        inactivityTimer.stop()
+        super.onDestroy()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,35 +53,29 @@ class AboutScreen_1 : AppCompatActivity(), RobotLifecycleCallbacks {
         supportActionBar?.hide()
         setContentView(R.layout.activity_about_screen1)
         QiSDK.register(this, this)
-
+        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
         val next_button: Button = findViewById(R.id.about_1_next_button)
         next_button.setOnClickListener {
             val intent = Intent(this, AboutScreen_2::class.java)
             startActivity(intent)
         }
-
-
     }
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
 
-        var ret: String = ""
+        var ret = "Hi there! I'm PepperAi, your new AI companion and photographer. Let’s start our adventure and create memorable moments together!"
 
         val TheStringToSay = SayBuilder.with(qiContext)
             .withText(ret)
             .build()
-
-
 
         val animation_1: Animation = AnimationBuilder.with(qiContext)
             .withResources(R.raw.hello_a001).build()
         val animate_1: Animate = AnimateBuilder.with(qiContext)
             .withAnimation(animation_1)
             .build()
-
-
-
-
+        TheStringToSay.async().run()
+        animate_1.async().run()
     }
     override fun onRobotFocusLost() {}
     override fun onRobotFocusRefused(reason: String?) {}

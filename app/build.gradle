@@ -38,6 +38,7 @@ android {
         kotlinCompilerExtensionVersion = "1.5.11"
     }
 
+
     buildscript {
         ext.kotlin_version = '1.9.23'
         repositories {
@@ -61,8 +62,6 @@ android {
 
 
 dependencies {
-
-
 
 
 

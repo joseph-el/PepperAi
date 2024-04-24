@@ -11,8 +11,7 @@ import com.example.Screen.WelcomeScreen
 import com.example.empathymap.R
 
 class PepperMainActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         requestWindowFeature(Window.FEATURE_NO_TITLE)

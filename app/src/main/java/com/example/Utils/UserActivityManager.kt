@@ -9,6 +9,7 @@ import com.example.Screen.WelcomeScreen
 
 class InactivityTimer(private val activity: Activity, private val timeout: Long) {
     private var handler: Handler = Handler(Looper.getMainLooper())
+
     private var runnable: Runnable = Runnable {
         val intent = Intent(activity, WelcomeScreen::class.java)
         activity.startActivity(intent)

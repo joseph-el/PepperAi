@@ -9,6 +9,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
+
 class EmailHelper(private val context: Context) {
 
     private val TAG = "EmailHelper"
@@ -56,3 +57,7 @@ class EmailHelper(private val context: Context) {
         }
     }
 }
+
+
+
+

@@ -13,12 +13,29 @@ import androidx.core.view.WindowInsetsCompat
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
+import com.aldebaran.qi.sdk.builder.AnimateBuilder
+import com.aldebaran.qi.sdk.builder.AnimationBuilder
+import com.aldebaran.qi.sdk.builder.SayBuilder
+import com.aldebaran.qi.sdk.`object`.actuation.Animate
+import com.aldebaran.qi.sdk.`object`.actuation.Animation
 import com.example.Screen.HomeScreen
 import com.example.Screen.SelectContextScreen
 import com.example.Screen.TakePictureScreen
+import com.example.Utils.InactivityTimer
 import com.example.empathymap.R
 
 class AboutScreen_5 : AppCompatActivity(), RobotLifecycleCallbacks {
+
+    private lateinit var inactivityTimer: InactivityTimer
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        inactivityTimer.onUserInteraction()
+    }
+    override fun onDestroy() {
+        inactivityTimer.stop()
+        super.onDestroy()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +50,7 @@ class AboutScreen_5 : AppCompatActivity(), RobotLifecycleCallbacks {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
+        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
         supportActionBar?.hide()
         setContentView(R.layout.activity_about_screen5)
         QiSDK.register(this, this)
@@ -49,8 +67,21 @@ class AboutScreen_5 : AppCompatActivity(), RobotLifecycleCallbacks {
         }
 
     }
+    override fun onRobotFocusGained(qiContext: QiContext?) {
+        val ret = "I was crafted by a dedicated student from School 1337, aimed at enhancing how humans and robots interact. Excited to show you what I can do!"
 
-    override fun onRobotFocusGained(qiContext: QiContext?) {}
+        val TheStringToSay = SayBuilder.with(qiContext)
+            .withText(ret)
+            .build()
+
+        val animation_1: Animation = AnimationBuilder.with(qiContext)
+            .withResources(R.raw.hello_a001).build()
+        val animate_1: Animate = AnimateBuilder.with(qiContext)
+            .withAnimation(animation_1)
+            .build()
+        TheStringToSay.async().run()
+        animate_1.async().run()
+    }
     override fun onRobotFocusLost() {}
     override fun onRobotFocusRefused(reason: String?) {}
 }

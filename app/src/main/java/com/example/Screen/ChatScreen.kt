@@ -40,6 +40,7 @@ import com.example.Core.SummarizeUiState
 import com.example.Core.category
 import com.example.Core.getCategoryInfo
 import com.example.Screen.AboutScreen.AboutScreen_1
+import com.example.Utils.InactivityTimer
 import com.example.Utils.RealSpeechToText
 import com.razzaghimahdi78.dotsloading.linear.LoadingWavy
 import com.example.empathymap.R
@@ -54,6 +55,7 @@ val IS_IS_LOADING: Int = (1 shl 3)
 
 class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
 
+    private lateinit var inactivityTimer: InactivityTimer
     private lateinit var scrollView: ScrollView
     private lateinit var chatLayout: LinearLayout
     private lateinit var messageInput: EditText
@@ -71,19 +73,31 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
     var ToShortMessage:String = ""
 
 
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        inactivityTimer.onUserInteraction()
+    }
+    override fun onDestroy() {
+        inactivityTimer.stop()
+        super.onDestroy()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
 
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
 
         supportActionBar?.hide()
         setContentView(R.layout.activity_chat_screen)
         QiSDK.register(this, this)
+        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
 
 
         toolbarTitle = findViewById(R.id.toolbarTitle)
@@ -97,7 +111,9 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
         sendButton   = findViewById(R.id.sendButton)
 
         toolbarTitle.text = getCategoryInfo(category as Category).name
+
         /* SetupVoice: Activity*/
+
         var permission: Boolean = ContextCompat.checkSelfPermission(
             this, Manifest.permission.RECORD_AUDIO
         ) == PackageManager.PERMISSION_GRANTED

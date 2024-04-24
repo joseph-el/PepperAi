@@ -35,11 +35,11 @@
             <com.razzaghimahdi78.dotsloading.linear.LoadingWavy
                 android:id="@+id/loadingWavy"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="65dp"
                 android:background="@drawable/chat_bubbles_of_robot"
                 android:lineSpacingExtra="5dp"
                 android:paddingLeft="20dp"
-                android:paddingTop="10dp"
+                android:paddingTop="0dp"
                 android:paddingRight="10dp"
                 android:paddingBottom="10dp"
                 app:dots_color="@color/white"

@@ -139,7 +139,6 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
         }
     }
 
-
     private fun refocusIfTimeout() {
         val currentTime = System.currentTimeMillis()
         val elapsedTime = currentTime - lastDetectedTime

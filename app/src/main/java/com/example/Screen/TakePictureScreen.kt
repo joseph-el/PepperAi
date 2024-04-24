@@ -35,15 +35,23 @@ import android.widget.Toast
 
 
 import com.aldebaran.qi.sdk.Qi
+import com.aldebaran.qi.sdk.builder.AnimateBuilder
+import com.aldebaran.qi.sdk.builder.AnimationBuilder
 
 import com.aldebaran.qi.sdk.builder.SayBuilder
+import com.aldebaran.qi.sdk.`object`.actuation.Animate
+import com.aldebaran.qi.sdk.`object`.actuation.Animation
 import com.aldebaran.qi.sdk.`object`.camera.TakePicture
-import com.example.Utils.EmailHelper
+import com.example.Utils.InactivityTimer
+
+import java.util.concurrent.TimeUnit
 
 private const val TAG = "TakePictureActivity"
 
 class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
+
+    private lateinit var inactivityTimer: InactivityTimer
     private var qiContext: QiContext? = null
     private var pictureBitmap: Bitmap? = null
     private lateinit var pictureView: ImageView
@@ -53,6 +61,12 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     private lateinit var user_name: EditText
     private lateinit var user_mail: EditText
     private lateinit var retakePicturesImageView: ImageView
+
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        inactivityTimer.onUserInteraction()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,6 +82,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
+        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
         supportActionBar?.hide()
         setContentView(R.layout.activity_take_picture_screen)
 
@@ -84,8 +99,8 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         takePictureButton.isEnabled = false
 
         takePictureButton.setOnClickListener {
-            takePic()
-            Log.d("yes iam here", "dddd")
+            DestroyAll()
+            this.qiContext?.let { QiSDK.register(this, this) }
             retakePicturesImageView.visibility = View.VISIBLE
         }
         backButton.setOnClickListener {
@@ -93,7 +108,6 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             startActivity(intent)
         }
         retakePicturesImageView.setOnClickListener {
-            Log.d("yes iam here", "dddd")
             DestroyAll()
             retakePicturesImageView.visibility = View.INVISIBLE
             takePic()
@@ -108,12 +122,15 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
                     Toast.makeText(this, "PepperAi: You Need To Take Pictures First", Toast.LENGTH_LONG).show()
                 } else {
                     try {
+
+                        /*
                         var EmailManager = EmailHelper(this)
                         pictureBitmap?.let { it1 ->
                             EmailManager.sendEmailWithImage(mail, name, "Pepper pictures: ",
                                 it1
                             )
                         }
+                         */
                         DestroyAll()
                         Toast.makeText(this, "PepperAi: Pictures send by success!", Toast.LENGTH_LONG).show()
                     } catch (e: Exception) {
@@ -175,6 +192,8 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         }
     }
     override fun onDestroy() {
+        inactivityTimer.stop()
+        super.onDestroy()
         QiSDK.unregister(this, this)
         super.onDestroy()
     }
@@ -184,11 +203,45 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
         runOnUiThread { takePictureButton.isEnabled = true }
 
-        val say = SayBuilder.with(qiContext)
-            .withText("I can take pictures. Press the button to try!")
+        val say1 = SayBuilder.with(qiContext)
+            .withText("Make SmiiiiiiLee !")
             .build()
-        // add animation //
-        say.run()
+
+        val say2 = SayBuilder.with(qiContext)
+            .withText("three")
+            .build()
+
+        val say3 = SayBuilder.with(qiContext)
+            .withText("Two")
+            .build()
+
+        val say4 = SayBuilder.with(qiContext)
+            .withText("one")
+            .build()
+
+        val say5 = SayBuilder.with(qiContext)
+            .withText("Yeaaaah i take it! Amazing ")
+            .build()
+
+        val animation_1: Animation = AnimationBuilder.with(qiContext)
+            .withResources(R.raw.hello_a001).build()
+        val animate_1: Animate = AnimateBuilder.with(qiContext)
+            .withAnimation(animation_1)
+            .build()
+
+
+        say1.async().run()
+        TimeUnit.SECONDS.sleep(2L)
+        say2.async().run()
+        TimeUnit.SECONDS.sleep(2L)
+        say3.async().run()
+        TimeUnit.SECONDS.sleep(2L)
+        say4.async().run()
+        TimeUnit.SECONDS.sleep(3L)
+        say4.async().run()
+        TimeUnit.SECONDS.sleep(2L)
+        animate_1.async().run()
+        takePic()
     }
 
     override fun onRobotFocusLost() {
