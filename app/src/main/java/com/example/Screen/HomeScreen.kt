@@ -19,10 +19,8 @@ import com.example.Utils.InactivityTimer
 import com.example.empathymap.R
 
 
-
 class HomeScreen : AppCompatActivity() , RobotLifecycleCallbacks {
     private lateinit var inactivityTimer: InactivityTimer
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,14 +44,15 @@ class HomeScreen : AppCompatActivity() , RobotLifecycleCallbacks {
         val take_picture_button: Button = findViewById(R.id.take_picture_button)
 
         start_chat_button.setOnClickListener {
+            inactivityTimer.stop()
             val intent = Intent(this, SelectContextScreen::class.java)
             startActivity(intent)
         }
         take_picture_button.setOnClickListener {
+            inactivityTimer.stop()
             val intent = Intent(this, TakePictureScreen::class.java)
             startActivity(intent)
         }
-
     }
 
     override fun onUserInteraction() {

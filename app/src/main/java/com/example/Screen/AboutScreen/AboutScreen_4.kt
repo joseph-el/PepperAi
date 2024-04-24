@@ -39,19 +39,21 @@ class AboutScreen_4 : AppCompatActivity(), RobotLifecycleCallbacks {
         )
 
         supportActionBar?.hide()
-        setContentView(R.layout.activity_home_screen)
-        QiSDK.register(this, this)
-        val start_chat_button: Button = findViewById(R.id.start_chat_button)
-        val take_picture_button: Button = findViewById(R.id.take_picture_button)
+        setContentView(R.layout.activity_about_screen4)
 
-        start_chat_button.setOnClickListener {
-            val intent = Intent(this, HomeScreen::class.java)
+        QiSDK.register(this, this)
+        val next_button: Button = findViewById(R.id.next_button_about_4)
+        val left_button: Button = findViewById(R.id.left_button_about_4)
+
+        next_button.setOnClickListener {
+            val intent = Intent(this, AboutScreen_5::class.java)
             startActivity(intent)
         }
-        take_picture_button.setOnClickListener {
-            val intent = Intent(this, WelcomeScreen::class.java)
+        left_button.setOnClickListener {
+            val intent = Intent(this, AboutScreen_3::class.java)
             startActivity(intent)
         }
+
 
     }
 

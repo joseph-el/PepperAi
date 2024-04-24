@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
+import com.example.Screen.HomeScreen
 import com.example.Screen.SelectContextScreen
 import com.example.Screen.TakePictureScreen
 import com.example.empathymap.R
@@ -33,17 +34,17 @@ class AboutScreen_5 : AppCompatActivity(), RobotLifecycleCallbacks {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
         supportActionBar?.hide()
-        setContentView(R.layout.activity_home_screen)
+        setContentView(R.layout.activity_about_screen5)
         QiSDK.register(this, this)
-        val start_chat_button: Button = findViewById(R.id.start_chat_button)
-        val take_picture_button: Button = findViewById(R.id.take_picture_button)
+        val next_button: Button = findViewById(R.id.go_to_home_icon)
+        val left_button: Button = findViewById(R.id.left_button_about_5)
 
-        start_chat_button.setOnClickListener {
-            val intent = Intent(this, SelectContextScreen::class.java)
+        next_button.setOnClickListener {
+            val intent = Intent(this, HomeScreen::class.java)
             startActivity(intent)
         }
-        take_picture_button.setOnClickListener {
-            val intent = Intent(this, TakePictureScreen::class.java)
+        left_button.setOnClickListener {
+            val intent = Intent(this, AboutScreen_4::class.java)
             startActivity(intent)
         }
 

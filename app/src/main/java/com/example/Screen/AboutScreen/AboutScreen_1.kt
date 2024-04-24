@@ -33,14 +33,15 @@ class AboutScreen_1 : AppCompatActivity(), RobotLifecycleCallbacks {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
         supportActionBar?.hide()
-        setContentView(R.layout.activity_home_screen)
+        setContentView(R.layout.activity_about_screen1)
         QiSDK.register(this, this)
-        val start_chat_button: Button = findViewById(R.id.start_chat_button)
 
-        start_chat_button.setOnClickListener {
+        val next_button: Button = findViewById(R.id.about_1_next_button)
+        next_button.setOnClickListener {
             val intent = Intent(this, AboutScreen_2::class.java)
             startActivity(intent)
         }
+
 
     }
 

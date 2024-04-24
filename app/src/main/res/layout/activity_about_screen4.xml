@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:background="@drawable/about5"
     tools:context="com.example.Screen.AboutScreen.AboutScreen_4">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+    <Button
+        android:id="@+id/next_button_about_4"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:layout_marginEnd="179dp"
+        android:background="#00FFFFFF"
+        app:layout_constraintBaseline_toBaselineOf="@+id/left_button_about_4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/left_button_about_4" />
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
+    <Button
+        android:id="@+id/left_button_about_4"
+        android:layout_width="0dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="645dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="39dp"
+        android:background="#00FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/next_button_about_4"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <include layout="@layout/content_about_screen4" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="16dp"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,9 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/welcom_screen_wallpapper"
+    android:background="@drawable/welcomescreen"
     tools:context="com.example.Screen.WelcomeScreen">
-
 
     <Button
         android:id="@+id/start_button"

@@ -35,7 +35,10 @@ import com.aldebaran.qi.sdk.builder.SayBuilder
 import com.example.Core.AppAction
 import com.example.Core.AppViewModel
 import com.example.Core.Artificial_intelligence_model
+import com.example.Core.Category
 import com.example.Core.SummarizeUiState
+import com.example.Core.category
+import com.example.Core.getCategoryInfo
 import com.example.Screen.AboutScreen.AboutScreen_1
 import com.example.Utils.RealSpeechToText
 import com.razzaghimahdi78.dotsloading.linear.LoadingWavy
@@ -57,6 +60,7 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
     private lateinit var sendButton: ImageButton
     private lateinit var Back_button: ImageButton
     private lateinit var voice_button: ImageButton
+    private lateinit var toolbarTitle: TextView
     private val SviewModel: Artificial_intelligence_model by viewModels()
     private lateinit var stt: RealSpeechToText
     private lateinit var viewModel: AppViewModel
@@ -65,6 +69,9 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
     private var pressed by mutableStateOf(false)
     private var qiContext: QiContext? = null
     var ToShortMessage:String = ""
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -74,11 +81,12 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
                 or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
 
 
-
         supportActionBar?.hide()
         setContentView(R.layout.activity_chat_screen)
         QiSDK.register(this, this)
 
+
+        toolbarTitle = findViewById(R.id.toolbarTitle)
         stt = RealSpeechToText(this)
         viewModel = AppViewModel(stt)
         Back_button = findViewById(R.id.backButton)
@@ -88,7 +96,7 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
         messageInput = findViewById(R.id.messageInput)
         sendButton   = findViewById(R.id.sendButton)
 
-
+        toolbarTitle.text = getCategoryInfo(category as Category).name
         /* SetupVoice: Activity*/
         var permission: Boolean = ContextCompat.checkSelfPermission(
             this, Manifest.permission.RECORD_AUDIO

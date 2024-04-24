@@ -5,6 +5,16 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/about1"
     tools:context="com.example.Screen.AboutScreen.AboutScreen_1">
 
+    <Button
+        android:id="@+id/about_1_next_button"
+        android:layout_width="48dp"
+        android:layout_height="46dp"
+        android:layout_marginEnd="185dp"
+        android:layout_marginBottom="35dp"
+        android:background="#00FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

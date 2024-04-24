@@ -57,7 +57,7 @@ fun getCategoryInfo(category: Category): CategoryInfo {
 fun main() {
 
     val category = Category.SCIENCE_AND_TECHNOLOGY
-    val categoryInfo = getCategoryInfo(category)
+    val categoryInfo = getCategoryInfo(category).name
 
     println(categoryInfo)
 }

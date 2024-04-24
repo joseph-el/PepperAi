@@ -19,7 +19,6 @@
         android:windowSoftInputMode="adjustResize"
         tools:targetApi="31">
 
-
         <activity android:name="com.example.Screen.AboutScreen.AboutScreen_1"/>
         <activity android:name="com.example.Screen.AboutScreen.AboutScreen_2"/>
         <activity android:name="com.example.Screen.AboutScreen.AboutScreen_3"/>

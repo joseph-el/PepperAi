@@ -1,5 +1,6 @@
 package com.example.Screen
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.Window
@@ -28,6 +29,7 @@ import com.aldebaran.qi.Future
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ScrollView
 import android.widget.Toast
 
@@ -47,6 +49,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     private lateinit var pictureView: ImageView
     private lateinit var takePictureButton: Button
     private lateinit var sendMail: Button
+    private lateinit var backButton: Button
     private lateinit var user_name: EditText
     private lateinit var user_mail: EditText
     private lateinit var retakePicturesImageView: ImageView
@@ -60,6 +63,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_FULLSCREEN)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
         this.window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
@@ -71,6 +75,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         retakePicturesImageView.visibility = View.INVISIBLE
 
 
+        backButton = findViewById(R.id.Backbutton)
         sendMail = findViewById(R.id.send_mail_button)
         user_name = findViewById(R.id.Name_of_user)
         user_mail = findViewById(R.id.userMail)
@@ -83,7 +88,10 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             Log.d("yes iam here", "dddd")
             retakePicturesImageView.visibility = View.VISIBLE
         }
-
+        backButton.setOnClickListener {
+            val intent = Intent(this, HomeScreen::class.java)
+            startActivity(intent)
+        }
         retakePicturesImageView.setOnClickListener {
             Log.d("yes iam here", "dddd")
             DestroyAll()

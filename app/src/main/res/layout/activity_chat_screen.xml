@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="@color/teal_200"
     tools:context="com.example.Screen.ChatScreen">
 
     <ImageView
@@ -18,7 +18,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/black"
+        android:background="@color/teal_200"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:src="@drawable/arrow_back"
+            android:src="@drawable/vector"
             android:paddingEnd="360dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -41,7 +41,7 @@
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:layout_marginBottom="0dp"
-            android:src="@drawable/pepper_logo"
+            android:src="@drawable/peppericonapp"
             app:civ_border_color="@color/white"
             app:civ_border_width="0dp"
             app:civ_shadow="true"
@@ -53,13 +53,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="Chat With Pepper "
-            android:textSize="18sp"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Healty"
+            android:textSize="20sp"
             app:layout_constraintStart_toEndOf="@id/image_view_logo"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.appcompat.widget.Toolbar>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/toolbar"
+        android:background="#41FFFFFF" />
 
     <ScrollView
         android:id="@+id/chat_layout"
@@ -92,12 +98,13 @@
 
         <ImageButton
             android:id="@+id/voiceButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@null"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_marginRight="10dp"
-            android:src="@drawable/voice_icon" />
+            android:layout_weight="1"
+
+            android:background="@null"
+            android:src="@drawable/voiceicon" />
 
         <EditText
             android:id="@+id/messageInput"
@@ -115,11 +122,13 @@
 
         <ImageButton
             android:id="@+id/sendButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+
             android:layout_weight="1"
             android:background="@null"
-            android:src="@drawable/send_icon" />
+            android:src="@drawable/sendicon" />
 
     </LinearLayout>
 
