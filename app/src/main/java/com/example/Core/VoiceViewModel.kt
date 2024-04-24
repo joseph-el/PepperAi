@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-
 class AppViewModel(private val stt: SpeechToText) : ViewModel() {
     private val _state = MutableStateFlow(AppState())
     val state = _state.asStateFlow()

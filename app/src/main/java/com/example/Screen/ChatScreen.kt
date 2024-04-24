@@ -51,8 +51,6 @@ val IS_LAST_ITEM: Int =  (1 shl 1)
 val IS_NOT_ROBOT: Int =  (1 shl 2)
 val IS_IS_LOADING: Int = (1 shl 3)
 
-
-
 class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
 
     private lateinit var inactivityTimer: InactivityTimer
@@ -104,12 +102,12 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
         stt = RealSpeechToText(this)
         viewModel = AppViewModel(stt)
         Back_button = findViewById(R.id.backButton)
-        voice_button = findViewById(R.id.voiceButton)
+
         chatLayout   = findViewById(R.id.chat_messages_layout)
         scrollView   = findViewById(R.id.chat_layout)
         messageInput = findViewById(R.id.messageInput)
         sendButton   = findViewById(R.id.sendButton)
-
+        voice_button = findViewById(R.id.voiceButton)
         toolbarTitle.text = getCategoryInfo(category as Category).name
 
         /* SetupVoice: Activity*/
@@ -127,6 +125,8 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
 
                 when (motionEvent.action) {
                     MotionEvent.ACTION_DOWN -> {
+                        Toast.makeText(this, "Pepper Listen!", Toast.LENGTH_LONG).show()
+                        getDrawable(R.drawable.mini_voice)
                         try {
                         if (permission) {
                             pressed = true
@@ -149,6 +149,7 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
                         true
                         view.performClick()
                     }
+
                     else -> false
                 }
         }
@@ -197,7 +198,7 @@ class ChatScreen : AppCompatActivity() , RobotLifecycleCallbacks {
 
     private fun renderChatContent(newState: SummarizeUiState) {
 
-        var IsSay: Boolean = false
+        var IsSay = false
 
         var state =  when (newState) {
             is SummarizeUiState.Initial -> {false}

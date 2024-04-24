@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 
+
 var category: Category? = null
 
 class Artificial_intelligence_model() : ViewModel() {
@@ -28,6 +29,9 @@ class Artificial_intelligence_model() : ViewModel() {
     fun resetUiStateToInitial() {
         _uiState.value = SummarizeUiState.Initial
     }
+
+
+
     fun summarize(inputText: String, IsGetShortMessage: Boolean) {
 
         if (IsGetShortMessage) {
@@ -66,3 +70,5 @@ class Artificial_intelligence_model() : ViewModel() {
         }
     }
 }
+
+
