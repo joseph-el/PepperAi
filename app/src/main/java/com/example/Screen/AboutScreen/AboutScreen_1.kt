@@ -13,6 +13,11 @@ import androidx.core.view.WindowInsetsCompat
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
+import com.aldebaran.qi.sdk.builder.AnimateBuilder
+import com.aldebaran.qi.sdk.builder.AnimationBuilder
+import com.aldebaran.qi.sdk.builder.SayBuilder
+import com.aldebaran.qi.sdk.`object`.actuation.Animate
+import com.aldebaran.qi.sdk.`object`.actuation.Animation
 import com.example.Screen.SelectContextScreen
 import com.example.Screen.TakePictureScreen
 import com.example.empathymap.R
@@ -45,7 +50,26 @@ class AboutScreen_1 : AppCompatActivity(), RobotLifecycleCallbacks {
 
     }
 
-    override fun onRobotFocusGained(qiContext: QiContext?) {}
+    override fun onRobotFocusGained(qiContext: QiContext?) {
+
+        var ret: String = ""
+
+        val TheStringToSay = SayBuilder.with(qiContext)
+            .withText(ret)
+            .build()
+
+
+
+        val animation_1: Animation = AnimationBuilder.with(qiContext)
+            .withResources(R.raw.hello_a001).build()
+        val animate_1: Animate = AnimateBuilder.with(qiContext)
+            .withAnimation(animation_1)
+            .build()
+
+
+
+
+    }
     override fun onRobotFocusLost() {}
     override fun onRobotFocusRefused(reason: String?) {}
 }
