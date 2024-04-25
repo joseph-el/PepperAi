@@ -1,16 +1,12 @@
 package com.example.Core
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.Utils.SpeechToText
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
 
 class AppViewModel(private val stt: SpeechToText) : ViewModel() {
     private val _state = MutableStateFlow(AppState())
@@ -23,6 +19,7 @@ class AppViewModel(private val stt: SpeechToText) : ViewModel() {
             }
         }
     }
+
     fun send(action: AppAction) {
         when (action) {
             AppAction.StartRecord -> {

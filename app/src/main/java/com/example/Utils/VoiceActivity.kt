@@ -1,4 +1,5 @@
-package com.example.Utils
+package com.example.Core
+
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -33,8 +34,6 @@ class RealSpeechToText(context: Context) : SpeechToText {
                 val partial = results
                     ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     ?.getOrNull(0) ?: ""
-
-                Log.d("Speech Recognizer", "onPartialResult: $partial")
                 text.value = partial
             }
 

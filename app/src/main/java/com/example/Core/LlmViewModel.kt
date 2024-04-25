@@ -65,14 +65,14 @@ class Artificial_intelligence_model() : ViewModel() {
                     if (!IsGetShortMessage)
                         _uiState.value = SummarizeUiState.Success(fulltext)
                     else {
-                        _uiState.value = SummarizeUiState.Prompt(fulltext)
+                        _uiState.value = SummarizeUiState.PepperSay(fulltext)
                     }
                 }
             } catch (e: Exception) {
                 if (!IsGetShortMessage)
                     _uiState.value = SummarizeUiState.Error(e.localizedMessage)
                 else
-                    _uiState.value = SummarizeUiState.Prompt(e.localizedMessage)
+                    _uiState.value = SummarizeUiState.PepperSay(e.localizedMessage)
             }
         }
     }
