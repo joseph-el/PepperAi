@@ -9,6 +9,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+import java.io.IOException
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.BufferedReader
+import java.io.InputStreamReader
+
+
 
 var category: Category? = null
 class Artificial_intelligence_model() : ViewModel() {
@@ -53,9 +65,87 @@ class Artificial_intelligence_model() : ViewModel() {
                 "If the query does not align with the category description, please utilize creative reasoning to offer a smart and relevant response. " +
                 "Please respond in plain text without using any Markdown formatting or links."
     }
+    fun generateMessage(prompt: String, isGetShortMessage: Boolean) {
+        viewModelScope.launch {
+            val client = OkHttpClient()
+            val MEDIA_TYPE = "application/json".toMediaType()
 
+            val requestBody = "{\"question\": \"$prompt\"}".toRequestBody(MEDIA_TYPE)
+
+            val request = Request.Builder()
+                .url("http://10.32.80.93:3000/api/v1/prediction/4db24f95-4bd3-4189-b44f-3a3ea72d9c37")
+                .post(requestBody)
+                .header("Content-Type", "application/json")
+                .build()
+            try {
+                withContext(Dispatchers.IO) {
+                    client.newCall(request).execute().use { response ->
+                        val responseBody = response.body!!.string()
+
+                        if (!response.isSuccessful) {
+                            throw IOException("Unexpected code $response")
+                        }
+
+                        if (!isGetShortMessage)
+                            _uiState.value = SummarizeUiState.Success(responseBody)
+                        else
+                            _uiState.value = SummarizeUiState.PepperSay(responseBody)
+                    }
+                }
+            } catch (e: Exception) {
+
+                if (!isGetShortMessage)
+                    _uiState.value = SummarizeUiState.Error(e.localizedMessage)
+                else
+                    _uiState.value = SummarizeUiState.PepperSay(e.localizedMessage)
+            }
+        }
+    }
+
+    /*
+    fun generateMessage(prompt: String, isGetShortMessage: Boolean) {
+        viewModelScope.launch {
+            // Formulate the curl command
+            val curlCommand = arrayOf(
+                "curl",
+                "http://localhost:3000/api/v1/prediction/4db24f95-4bd3-4189-b44f-3a3ea72d9c37",
+                "-X", "POST",
+                "-d", "{\"question\": \"$prompt\"}",
+                "-H", "Content-Type: application/json"
+            )
+            // Execute the curl command and handle output
+            try {
+                withContext(Dispatchers.IO) { // Perform network I/O in IO Dispatcher
+                    val process = ProcessBuilder(*curlCommand).start()
+                    val output = process.inputStream.bufferedReader().use(BufferedReader::readText)
+                    val error = process.errorStream.bufferedReader().use(BufferedReader::readText)
+
+                    if (process.waitFor() == 0 && error.isEmpty()) {
+                        if (!isGetShortMessage)
+                            _uiState.value = SummarizeUiState.Success(output)
+                        else
+                            _uiState.value = SummarizeUiState.PepperSay(output)
+                    } else {
+                        throw Exception(error.ifEmpty { "Unknown error during API call" })
+                    }
+                }
+            } catch (e: Exception) {
+                if (!isGetShortMessage)
+                    _uiState.value = SummarizeUiState.Error(e.localizedMessage)
+                else
+                    _uiState.value = SummarizeUiState.PepperSay(e.localizedMessage)
+            }
+        }
+    }
+
+
+     */
+
+    /*
     fun generateMessage(prompt: String, IsGetShortMessage: Boolean) {
         viewModelScope.launch {
+
+            // TODO ("get by curl response ")
             try {
                 var fulltext = ""
                 (generativeText).let { model ->
@@ -76,5 +166,7 @@ class Artificial_intelligence_model() : ViewModel() {
             }
         }
     }
+
+     */
 }
 

@@ -10,6 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.Screen.WelcomeScreen
 import com.example.empathymap.R
 
+import java.io.IOException
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+
+
 
 class PepperMainActivity : AppCompatActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,5 +42,7 @@ class PepperMainActivity : AppCompatActivity() {
             startActivity(intent)
         }, 7000)
     }
+
+
 
 }

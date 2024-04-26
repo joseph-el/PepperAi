@@ -49,7 +49,7 @@ class AboutScreen_2 : AppCompatActivity(), RobotLifecycleCallbacks {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
-        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
+        inactivityTimer = InactivityTimer(this, 420000)
         supportActionBar?.hide()
         setContentView(R.layout.activity_about_screen2)
         QiSDK.register(this, this)
@@ -69,18 +69,19 @@ class AboutScreen_2 : AppCompatActivity(), RobotLifecycleCallbacks {
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
 
-        val ret = "Want a photo? Just ask, and I’ll snap it and send it directly to your Gmail. Capturing memories has never been easier!"
+        val ret = "Want a photo? Just ask, and I’ll snap it and send it directly to your Gmail. Capturing memories has never been easier! ooooooo yaaaaaah "
         val TheStringToSay = SayBuilder.with(qiContext)
             .withText(ret)
             .build()
 
         val animation_1: Animation = AnimationBuilder.with(qiContext)
-            .withResources(R.raw.hello_a001).build()
+            .withResources(R.raw.show_shoulders_01).build()
         val animate_1: Animate = AnimateBuilder.with(qiContext)
             .withAnimation(animation_1)
             .build()
         TheStringToSay.async().run()
         animate_1.async().run()
+
     }
     override fun onRobotFocusLost() {}
     override fun onRobotFocusRefused(reason: String?) {}

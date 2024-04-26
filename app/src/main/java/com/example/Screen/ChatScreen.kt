@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -28,6 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
+import com.aldebaran.qi.sdk.builder.ListenBuilder
 import com.aldebaran.qi.sdk.builder.SayBuilder
 import com.example.Core.AppAction
 import com.example.Core.AppViewModel
@@ -45,6 +47,8 @@ val IS_ROBOT: Int = (1 shl 0)
 val IS_LAST_ITEM: Int = (1 shl 1)
 val IS_NOT_ROBOT: Int = (1 shl 2)
 val IS_IS_LOADING: Int = (1 shl 3)
+val MAKE_ROBOT_LISTEN: Int = 1
+val MAKE_ROBOT_SAY: Int = 2
 
 class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
@@ -63,6 +67,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     private var EditMessageState by mutableStateOf(false)
     private var qiContext: QiContext? = null
     var ToShortMessage: String = ""
+    private var PepperState: Int = 0
 
     override fun onUserInteraction() {
         super.onUserInteraction()
@@ -136,6 +141,14 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             }
         }
 
+
+
+
+
+
+
+
+
         Back_button.setOnClickListener {
             val intent = Intent(this, HomeScreen::class.java)
             startActivity(intent)
@@ -159,21 +172,25 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             }
         }
 
-        lifecycleScope.launchWhenStarted { SviewModel.uiState.collect { newState -> renderChatContent(newState) } }
-
         lifecycleScope.launch {
             viewModel.state.collect { state ->
                 if (state.display.isNotEmpty()) {
+
+                    // When robot say something it will redirect with this
                     messageList.add((IS_LAST_ITEM or IS_NOT_ROBOT) to state.display)
                     SviewModel.summarize(state.display, false)
+                    // here
+
                     SviewModel.resetUiStateToInitial()
                 }
             }
         }
+
+
+        lifecycleScope.launchWhenStarted { SviewModel.uiState.collect { newState -> renderChatContent(newState) } }
     }
 
     /* List Methods */
-
     private fun renderChatContent(newState: SummarizeUiState) {
 
         var IsSay = false
@@ -307,9 +324,25 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
         this.qiContext = qiContext
 
-        val Make_Robot_Say = SayBuilder.with(qiContext).withText(markdownToPlainText(ToShortMessage)).build()
-        Make_Robot_Say.run()
-        ToShortMessage = ""
+        if (PepperState == MAKE_ROBOT_SAY ) {
+            PepperState = 0
+            val Make_Robot_Say = SayBuilder.with(qiContext).withText(markdownToPlainText(ToShortMessage)).build()
+            Make_Robot_Say.run()
+            ToShortMessage = ""
+        }
+        if (PepperState == MAKE_ROBOT_LISTEN) {
+            PepperState = 0
+            val listen = ListenBuilder.with(qiContext)
+                .build()
+
+            listen.async().run().andThenConsume { listenResult ->
+                val recognizedPhrase = listenResult.heardPhrase.text
+                messageList.add((IS_LAST_ITEM or IS_NOT_ROBOT) to recognizedPhrase)
+                SviewModel.summarize(recognizedPhrase, false)
+                // Log.d("Listen_Pepper:", "Heard phrase: $recognizedPhrase")
+            }
+        }
+
     }
 
     override fun onRobotFocusLost() {
@@ -317,4 +350,5 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     }
 
     override fun onRobotFocusRefused(reason: String?) {}
+
 }

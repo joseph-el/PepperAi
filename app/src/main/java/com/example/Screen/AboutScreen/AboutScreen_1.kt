@@ -53,7 +53,7 @@ class AboutScreen_1 : AppCompatActivity(), RobotLifecycleCallbacks {
         supportActionBar?.hide()
         setContentView(R.layout.activity_about_screen1)
         QiSDK.register(this, this)
-        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
+        inactivityTimer = InactivityTimer(this, 420000)
         val next_button: Button = findViewById(R.id.about_1_next_button)
         next_button.setOnClickListener {
             val intent = Intent(this, AboutScreen_2::class.java)
@@ -69,13 +69,15 @@ class AboutScreen_1 : AppCompatActivity(), RobotLifecycleCallbacks {
             .withText(ret)
             .build()
 
-        val animation_1: Animation = AnimationBuilder.with(qiContext)
-            .withResources(R.raw.hello_a001).build()
-        val animate_1: Animate = AnimateBuilder.with(qiContext)
-            .withAnimation(animation_1)
+        val animation_5: Animation = AnimationBuilder.with(qiContext)
+            .withResources(R.raw.show_self_01).build()
+        val animate_5: Animate = AnimateBuilder.with(qiContext)
+            .withAnimation(animation_5)
             .build()
+
+        animate_5.async().run()
+
         TheStringToSay.async().run()
-        animate_1.async().run()
     }
     override fun onRobotFocusLost() {}
     override fun onRobotFocusRefused(reason: String?) {}

@@ -55,7 +55,7 @@ class AboutScreen_4 : AppCompatActivity(), RobotLifecycleCallbacks {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
+        inactivityTimer = InactivityTimer(this, 420000)
         supportActionBar?.hide()
         setContentView(R.layout.activity_about_screen4)
 
@@ -80,7 +80,7 @@ class AboutScreen_4 : AppCompatActivity(), RobotLifecycleCallbacks {
             .build()
 
         val animation_1: Animation = AnimationBuilder.with(qiContext)
-            .withResources(R.raw.hello_a001).build()
+            .withResources(R.raw.show_head_01).build()
         val animate_1: Animate = AnimateBuilder.with(qiContext)
             .withAnimation(animation_1)
             .build()

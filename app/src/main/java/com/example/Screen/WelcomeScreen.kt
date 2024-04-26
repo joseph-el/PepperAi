@@ -105,7 +105,7 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
 
         // TODO (Change the animation)
         val animation_1: Animation = AnimationBuilder.with(qiContext)
-            .withResources(R.raw.hello_a001).build()
+            .withResources(R.raw.attract_r05).build()
         val animate_1: Animate = AnimateBuilder.with(qiContext)
             .withAnimation(animation_1)
             .build()

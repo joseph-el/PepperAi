@@ -50,7 +50,7 @@ class AboutScreen_5 : AppCompatActivity(), RobotLifecycleCallbacks {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
-        inactivityTimer = InactivityTimer(this, 2 * 60 * 1000L)
+        inactivityTimer = InactivityTimer(this, 420000)
         supportActionBar?.hide()
         setContentView(R.layout.activity_about_screen5)
         QiSDK.register(this, this)
@@ -68,14 +68,14 @@ class AboutScreen_5 : AppCompatActivity(), RobotLifecycleCallbacks {
 
     }
     override fun onRobotFocusGained(qiContext: QiContext?) {
-        val ret = "I was crafted by a dedicated student from School 1337, aimed at enhancing how humans and robots interact. Excited to show you what I can do!"
+        val ret = "I was crafted by a student from School 1337, aimed at enhancing how humans and robots interact. Excited to show you what I can do!"
 
         val TheStringToSay = SayBuilder.with(qiContext)
             .withText(ret)
             .build()
 
         val animation_1: Animation = AnimationBuilder.with(qiContext)
-            .withResources(R.raw.hello_a001).build()
+            .withResources(R.raw.funny_02).build()
         val animate_1: Animate = AnimateBuilder.with(qiContext)
             .withAnimation(animation_1)
             .build()

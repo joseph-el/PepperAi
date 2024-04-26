@@ -70,20 +70,23 @@ class HomeScreen : AppCompatActivity() , RobotLifecycleCallbacks {
     }
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
-        val ret = "Selected on of the choise !!"
+        val ret = "Chose one of the provided button and let's start"
 
         val TheStringToSay = SayBuilder.with(qiContext)
             .withText(ret)
             .build()
 
-        val animation_1: Animation = AnimationBuilder.with(qiContext)
-            .withResources(R.raw.show_tablet_01).build()
-        val animate_1: Animate = AnimateBuilder.with(qiContext)
-            .withAnimation(animation_1)
+        val animation_6: Animation = AnimationBuilder.with(qiContext)
+            .withResources(R.raw.show_tablet_06).build()
+        val animate_6: Animate = AnimateBuilder.with(qiContext)
+            .withAnimation(animation_6)
             .build()
 
+
         TheStringToSay.async().run()
-        animate_1.async().run()
+
+        animate_6.async().run()
+
     }
 
     override fun onRobotFocusLost() {}

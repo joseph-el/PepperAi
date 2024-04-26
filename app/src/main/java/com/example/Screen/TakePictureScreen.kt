@@ -50,7 +50,6 @@ private const val TAG = "TakePictureActivity"
 
 class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
-
     private lateinit var inactivityTimer: InactivityTimer
     private var qiContext: QiContext? = null
     private var pictureBitmap: Bitmap? = null
@@ -89,18 +88,17 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         retakePicturesImageView = findViewById<ImageView>(R.id.retake_pictures)
         retakePicturesImageView.visibility = View.INVISIBLE
 
-
         backButton = findViewById(R.id.Backbutton)
         sendMail = findViewById(R.id.send_mail_button)
         user_name = findViewById(R.id.Name_of_user)
         user_mail = findViewById(R.id.userMail)
         pictureView = findViewById(R.id.imageView2)
         takePictureButton = findViewById(R.id.take_pic_button)
-        takePictureButton.isEnabled = false
 
         takePictureButton.setOnClickListener {
             DestroyAll()
-            this.qiContext?.let { QiSDK.register(this, this) }
+            takePictureButton.isEnabled = false
+            QiSDK.register(this, this)
             retakePicturesImageView.visibility = View.VISIBLE
         }
         backButton.setOnClickListener {
@@ -110,7 +108,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         retakePicturesImageView.setOnClickListener {
             DestroyAll()
             retakePicturesImageView.visibility = View.INVISIBLE
-            takePic()
+            takePictureButton.isEnabled = true
         }
 
         sendMail.setOnClickListener {
@@ -139,7 +137,6 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
                 }
             }
         }
-        QiSDK.register(this, this)
     }
     private fun DestroyAll() {
         if (qiContext == null) {
@@ -158,39 +155,27 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         if (qiContext == null) {
             return
         }
-
+        takePictureButton.isEnabled = false
         val takePictureFuture = TakePictureBuilder.with(qiContext).buildAsync()
 
         takePictureFuture.andThenCompose<TimestampedImageHandle>(Qi.onUiThread<TakePicture, Future<TimestampedImageHandle>> { takePicture ->
-
-            takePictureButton.isEnabled = false
-
             takePicture.async().run()
 
         }).andThenConsume { timestampedImageHandle ->
-            //Consume take picture action when it's ready
-            Log.i(TAG, "Picture taken")
-            // get picture
             val encodedImageHandle = timestampedImageHandle.image
-
             val encodedImage = encodedImageHandle.value
-            Log.i(TAG, "PICTURE RECEIVED!")
-
-            runOnUiThread {
-                takePictureButton.isEnabled = true
-            }
-
             val buffer = encodedImage.data
             buffer.rewind()
             val pictureBufferSize = buffer.remaining()
             val pictureArray = ByteArray(pictureBufferSize)
             buffer.get(pictureArray)
 
-            Log.i(TAG, "PICTURE RECEIVED! ($pictureBufferSize Bytes)")
             pictureBitmap = BitmapFactory.decodeByteArray(pictureArray, 0, pictureBufferSize)
             runOnUiThread { pictureView.setImageBitmap(pictureBitmap) }
         }
+
     }
+
     override fun onDestroy() {
         inactivityTimer.stop()
         super.onDestroy()
@@ -201,7 +186,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     override fun onRobotFocusGained(qiContext: QiContext) {
         this.qiContext = qiContext
 
-        runOnUiThread { takePictureButton.isEnabled = true }
+        runOnUiThread { takePictureButton.isEnabled = false }
 
         val say1 = SayBuilder.with(qiContext)
             .withText("Make SmiiiiiiLee !")
@@ -224,11 +209,10 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             .build()
 
         val animation_1: Animation = AnimationBuilder.with(qiContext)
-            .withResources(R.raw.hello_a001).build()
+            .withResources(R.raw.show_body_02).build()
         val animate_1: Animate = AnimateBuilder.with(qiContext)
             .withAnimation(animation_1)
             .build()
-
 
         say1.async().run()
         TimeUnit.SECONDS.sleep(2L)
@@ -242,6 +226,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         TimeUnit.SECONDS.sleep(2L)
         animate_1.async().run()
         takePic()
+        say5.async().run()
     }
 
     override fun onRobotFocusLost() {
