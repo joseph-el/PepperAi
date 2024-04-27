@@ -40,6 +40,8 @@ class SelectContextScreen : AppCompatActivity() {
         super.onDestroy()
     }
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)

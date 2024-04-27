@@ -34,14 +34,18 @@ import com.aldebaran.qi.sdk.builder.SayBuilder
 import com.example.Core.AppAction
 import com.example.Core.AppViewModel
 import com.example.Core.Artificial_intelligence_model
-import com.example.Core.Category
+
 import com.example.Core.RealSpeechToText
 import com.example.Core.SummarizeUiState
-import com.example.Core.category
+
 import com.example.Core.getCategoryInfo
 import com.example.Utils.InactivityTimer
 import com.example.empathymap.R
 import kotlinx.coroutines.launch
+
+import com.example.Core.Category
+import com.example.Core.category
+
 
 val IS_ROBOT: Int = (1 shl 0)
 val IS_LAST_ITEM: Int = (1 shl 1)
@@ -49,6 +53,10 @@ val IS_NOT_ROBOT: Int = (1 shl 2)
 val IS_IS_LOADING: Int = (1 shl 3)
 val MAKE_ROBOT_LISTEN: Int = 1
 val MAKE_ROBOT_SAY: Int = 2
+
+
+
+
 
 class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
@@ -69,19 +77,14 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     var ToShortMessage: String = ""
     private var PepperState: Int = 0
 
-    override fun onUserInteraction() {
-        super.onUserInteraction()
-        inactivityTimer.onUserInteraction()
-    }
 
-    override fun onDestroy() {
-        inactivityTimer.stop()
-        super.onDestroy()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+
+        category = Category.EDUCATION_AND_LEARNING
 
         window.decorView.systemUiVisibility =
             (View.SYSTEM_UI_FLAG_IMMERSIVE or
@@ -145,7 +148,12 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
 
 
-
+        // voice Icon
+        // start animation
+        // start Listen
+        // send to back-end
+        // get response
+        // reset state
 
 
 
@@ -190,6 +198,15 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         lifecycleScope.launchWhenStarted { SviewModel.uiState.collect { newState -> renderChatContent(newState) } }
     }
 
+
+
+
+
+
+
+
+
+
     /* List Methods */
     private fun renderChatContent(newState: SummarizeUiState) {
 
@@ -201,10 +218,12 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
                     false
                 }
                 is SummarizeUiState.Loading -> {
+                    // make pepper thinking //
                     true
                 }
                 is SummarizeUiState.PepperSay -> {
                     ToShortMessage = newState.string_to_say
+                    Log.d("robot-str: ", "$ToShortMessage")
                     IsSay = true
                     true
                 }
@@ -332,21 +351,27 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         }
         if (PepperState == MAKE_ROBOT_LISTEN) {
             PepperState = 0
-            val listen = ListenBuilder.with(qiContext)
-                .build()
 
-            listen.async().run().andThenConsume { listenResult ->
-                val recognizedPhrase = listenResult.heardPhrase.text
-                messageList.add((IS_LAST_ITEM or IS_NOT_ROBOT) to recognizedPhrase)
-                SviewModel.summarize(recognizedPhrase, false)
-                // Log.d("Listen_Pepper:", "Heard phrase: $recognizedPhrase")
-            }
+            // Listen for Hey Pepper
+            // start recording
+            // save it
+            // send to backend
+            // do other thing
         }
 
     }
 
     override fun onRobotFocusLost() {
         this.qiContext = null
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        inactivityTimer.onUserInteraction()
+    }
+    override fun onDestroy() {
+        inactivityTimer.stop()
+        super.onDestroy()
     }
 
     override fun onRobotFocusRefused(reason: String?) {}

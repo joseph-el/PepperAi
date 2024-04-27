@@ -8,32 +8,23 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
-import java.io.IOException
-import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.BufferedReader
-import java.io.InputStreamReader
-
+import okhttp3.Response
+import org.json.JSONObject
+import java.io.IOException
 
 
 var category: Category? = null
+
+
 class Artificial_intelligence_model() : ViewModel() {
 
-    private val generativeMultiModal = GenerativeModel(
-        modelName = "gemini-pro-vision",
-        apiKey = "AIzaSyDrjE857ITiU4y2i1Do7KEz_50dzFITnbY"
-    )
-
-    private val generativeText = GenerativeModel(
-        modelName = "gemini-pro",
-        apiKey = "AIzaSyDrjE857ITiU4y2i1Do7KEz_50dzFITnbY"
-    )
+    private val client = OkHttpClient()
 
     private val _uiState = MutableStateFlow<SummarizeUiState>(SummarizeUiState.Initial)
     val uiState: StateFlow<SummarizeUiState> = _uiState.asStateFlow()
@@ -43,15 +34,19 @@ class Artificial_intelligence_model() : ViewModel() {
     }
 
     fun summarize(inputText: String, isGetShortMessage: Boolean) {
+
+        val jsonObject = JSONObject()
+
         if (isGetShortMessage) {
             val briefPrompt = prepareBriefPrompt(inputText)
-            generateMessage(briefPrompt, true)
+            jsonObject.put("question", briefPrompt)
+            generateMessage(jsonObject.toString(), true)
             return
         }
 
-        val prompt = prepareFullPrompt(inputText)
+        jsonObject.put("question", prepareFullPrompt(inputText))
         _uiState.value = SummarizeUiState.Loading
-        generateMessage(prompt, false)
+        generateMessage(jsonObject.toString(), false)
     }
 
     private fun prepareBriefPrompt(inputText: String): String =
@@ -65,9 +60,147 @@ class Artificial_intelligence_model() : ViewModel() {
                 "If the query does not align with the category description, please utilize creative reasoning to offer a smart and relevant response. " +
                 "Please respond in plain text without using any Markdown formatting or links."
     }
-    fun generateMessage(prompt: String, isGetShortMessage: Boolean) {
+
+    fun generateMessage(prompt: String, IsBriefMessage: Boolean) {
+        viewModelScope.launch {
+
+                val request = Request.Builder()
+                    .url("http://10.0.2.2:3000/api/v1/prediction/4db24f95-4bd3-4189-b44f-3a3ea72d9c37")
+                    .post(prompt.toRequestBody(JSON))
+                    .build()
+
+                client.newCall(request).enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        try {
+                            throw IOException("Request failed: ${e.localizedMessage}")
+                        } catch (e: Exception) {
+                            if (!IsBriefMessage)
+                                _uiState.value = SummarizeUiState.Error(e.localizedMessage)
+                            else
+                                _uiState.value = SummarizeUiState.PepperSay(e.localizedMessage)
+                        }
+                    }
+                    override fun onResponse(call: Call, response: Response) {
+
+                        var ret:String = "pepper"
+                       // Log.d("robot-respose: ", "${response.body?.string()}")
+                        val jsonObject = JSONObject(response.body?.string())
+
+                        try {
+                            ret = jsonObject.getString("text")
+                        }catch (e:Exception) {}
+
+                        if (!IsBriefMessage)
+                            _uiState.value = SummarizeUiState.Success(ret)
+                        else {
+                            _uiState.value = SummarizeUiState.PepperSay(ret)
+                        }
+                    }
+                })
+
+        }
+    }
+    companion object {
+        val JSON = "application/json; charset=utf-8".toMediaTypeOrNull()
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+        fun generateMessage(prompt: String, isGetShortMessage: Boolean) {
+
+            val client = OkHttpClient()
+
+            /*
+            val url = "http://10.0.2.2:3000/api/v1/prediction/4db24f95-4bd3-4189-b44f-3a3ea72d9c37"
+            val json = "{\"question\": \"$prompt\"}"
+            val mediaType = "application/json; charset=utf-8".toMediaType()
+            val body = json.toRequestBody(mediaType)
+
+
+             */
+
+
+            fun sendPostRequest(userName: String, password: String) {
+                val json = """
+        {
+            "question": "Hey, how are you?"
+        }
+    """.trimIndent()
+
+                val url = "http://10.0.2.2:3000/api/v1/prediction/4db24f95-4bd3-4189-b44f-3a3ea72d9c37"
+                val body = RequestBody.create("application/json".toMediaTypeOrNull(), json)
+                val request = Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build()
+
+                OkHttpClient().newCall(request).enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        e.printStackTrace()
+                    }
+                    override fun onResponse(call: Call, response: Response) {
+                        if (!response.isSuccessful) {
+                            throw IOException("Unexpected code $response")
+                        } else {
+                            IOException("Unexpected code ${response.body?.string()}")
+                            //println(response.body?.string())
+                        }
+                    }
+                })
+            }
+
+
+            viewModelScope.launch {
+                try {
+                    sendPostRequest("", "")
+                    // Now you can use responseBody as needed
+                    // _uiState.value = SummarizeUiState.Success(responseBody)
+                } catch (e: IOException) {
+                    _uiState.value = SummarizeUiState.Error(e.localizedMessage)
+                }
+
+            }
+
+
+
+        /*
         viewModelScope.launch {
             val client = OkHttpClient()
+
+            /*
+            curl http://localhost:3000/api/v1/prediction/4db24f95-4bd3-4189-b44f-3a3ea72d9c37 \
+                -X POST \
+                -d '{"question": "Hey, how are you?"}' \
+                -H "Content-Type: application/json"
+             */
+
             val MEDIA_TYPE = "application/json".toMediaType()
 
             val requestBody = "{\"question\": \"$prompt\"}".toRequestBody(MEDIA_TYPE)
@@ -77,6 +210,9 @@ class Artificial_intelligence_model() : ViewModel() {
                 .post(requestBody)
                 .header("Content-Type", "application/json")
                 .build()
+
+
+
             try {
                 withContext(Dispatchers.IO) {
                     client.newCall(request).execute().use { response ->
@@ -100,6 +236,8 @@ class Artificial_intelligence_model() : ViewModel() {
                     _uiState.value = SummarizeUiState.PepperSay(e.localizedMessage)
             }
         }
+
+         */
     }
 
     /*
@@ -168,5 +306,4 @@ class Artificial_intelligence_model() : ViewModel() {
     }
 
      */
-}
-
+ */

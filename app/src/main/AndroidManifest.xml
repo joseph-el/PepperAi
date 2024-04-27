@@ -4,6 +4,7 @@
 
     <uses-feature android:name="com.softbank.hardware.pepper" />
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -29,14 +30,13 @@
         <activity android:name="com.example.Screen.AboutScreen.AboutScreen_4" />
         <activity android:name="com.example.Screen.AboutScreen.AboutScreen_5" />
         <activity android:name="com.example.Screen.TakePictureScreen" />
-        <activity
-            android:name="com.example.Screen.ChatScreen"
-            android:windowSoftInputMode="adjustResize" />
+
         <activity android:name="com.example.Screen.WelcomeScreen" />
         <activity android:name="com.example.Screen.HomeScreen" />
         <activity android:name="com.example.Screen.SelectContextScreen" />
         <activity
-            android:name="com.example.PepperMainActivity"
+            android:name="com.example.Screen.ChatScreen"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
