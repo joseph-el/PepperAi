@@ -10,10 +10,12 @@ import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
-import android.widget.Button
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
+import com.example.Core.ConfigManager
 import com.example.Core.SummarizeUiState
 import com.example.Screen.ChatScreen
 import com.example.Screen.SelectContextScreen
@@ -25,7 +27,166 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
+import pl.droidsonroids.gif.GifImageButton
+import pl.droidsonroids.gif.GifImageView
 import java.io.IOException
+
+
+
+
+lateinit var configManager: ConfigManager
+
+class PepperMainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+
+            super.onCreate(savedInstanceState)
+
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+            this.window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
+            supportActionBar?.hide()
+            setContentView(R.layout.activity_pepper_main)
+
+            configManager = ConfigManager("config.json")
+            if (configManager.isFileFound()) {
+                // Handel Error
+                Handler().postDelayed({
+                    val intent = Intent(this, SelectContextScreen::class.java)
+                    startActivity(intent)
+                }, 3000)
+            }else {
+                Log.d("config_file", ": not found by sucsses")
+            }
+                    /*      Example of config:
+                            {
+                              "ip-address": "10.32.80.93",
+                              "port":"3000",
+                              "url": "/api/v1/prediction/64439968-436e-4ad5-9b39-c1b3f016b977"
+                              "transcribe-port": "5000"
+                              "transcribe-url": "/transcribe"
+                            }
+                     */
+
+
+
+        }
+
+}
+
+
+
+
+
+
+
+
+
+
+/*
+
+val outputDir = Environment.getExternalStorageDirectory().resolve("recordings")
+if (!outputDir.exists()) {
+    outputDir.mkdirs()
+}
+Log.d("YourTag", "Output directory path: ${outputDir.absolutePath}")
+val voiceRecorder = VoiceRecorder(outputDir)
+
+var permission: Boolean =
+    ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+val launcher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> permission = granted }
+
+if (!permission) {
+    launcher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+}
+
+voice_button.setOnClickListener {
+
+    voiceRecorder.startRecording()
+
+    voice_button.isEnabled = false
+
+    while (voiceRecorder.isRecording) {}
+
+    voice_button.isEnabled = true
+    Log.d("YourTag", "Recording DONE")
+
+    val recordedFilePath = voiceRecorder.getRecordedFilePath()
+
+
+}
+
+
+ */
+
+
+
+
+
+
+/*
+try {
+
+    val mediaType = "application/json; charset=utf-8".toMediaType()
+    val requestBody = "{\"question\": \"$prompt\"}".toRequestBody(mediaType)
+    val request = Request.Builder()
+        .url("http://10.0.2.2:3000/api/v1/prediction/4db24f95-4bd3-4189-b44f-3a3ea72d9c37")
+        .header("User-Agent", "OkHttp Headers.java")
+        .addHeader("Accept", "application/json; q=0.5")
+        .post(requestBody)
+        .build()
+
+    // This will run the network operation on an IO-optimized thread
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) throw IOException("Unexpected code $response")
+
+
+        Log.d("TheVar", ": ${response.header("Server")}")
+        Log.d("TheVar",  ": ${response.header("Date")}")
+        Log.d("TheVar", ": ${response.headers("Vary")}")
+
+        Log.d("TheVar", ": ${response.body?.string()}")
+    }
+
+
+
+} catch (e: IOException) {
+    Log.d("TheVar", ": ${e.localizedMessage}")
+
+}
+
+
+ */
+
+
+
+
+
+
+
+// Create an output directory for the recorded files
+// Create an instance of VoiceRecorder
+
+
+
+
+// Delete the recorded file
+//voiceRecorder.deleteRecordedFile()
+//Log.d("YourTag", "Recorded file deleted.")
+
+
+
+
 
 
 /*
@@ -70,216 +231,3 @@ fun main() {
 }
 
  */
-
-
-class PepperMainActivity : AppCompatActivity() {
-    private lateinit var voice_button: Button
-
-    /*
-    private val client = OkHttpClient()
-
-    fun run(postBody: String) {
-
-        postBody.trimMargin()
-        val request = Request.Builder()
-            .url("http://10.0.2.2:3000/api/v1/prediction/4db24f95-4bd3-4189-b44f-3a3ea72d9c37")
-            .post(postBody.toRequestBody(JSON))
-            .build()
-
-        try {
-            client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    Log.d("TheVar", ": ${e.localizedMessage}")
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    if (!response.isSuccessful) {
-                        throw IOException("Unexpected code $response")
-                    } else {
-                        IOException("Unexpected code ${response.body?.string()}")
-                        //println(response.body?.string())
-                    }
-                }
-            })
-        }catch (e: Exception) {
-
-        }
-
-    }
-
-    companion object {
-        val JSON = "application/json; charset=utf-8".toMediaTypeOrNull()
-    }
-
-     */
-
-
-
-
-
-
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-
-            requestWindowFeature(Window.FEATURE_NO_TITLE)
-            this.window.setFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
-            )
-
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
-            supportActionBar?.hide()
-            setContentView(R.layout.activity_pepper_main)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /*
-        try {
-
-            val mediaType = "application/json; charset=utf-8".toMediaType()
-            val requestBody = "{\"question\": \"$prompt\"}".toRequestBody(mediaType)
-            val request = Request.Builder()
-                .url("http://10.0.2.2:3000/api/v1/prediction/4db24f95-4bd3-4189-b44f-3a3ea72d9c37")
-                .header("User-Agent", "OkHttp Headers.java")
-                .addHeader("Accept", "application/json; q=0.5")
-                .post(requestBody)
-                .build()
-
-            // This will run the network operation on an IO-optimized thread
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) throw IOException("Unexpected code $response")
-
-
-                Log.d("TheVar", ": ${response.header("Server")}")
-                Log.d("TheVar",  ": ${response.header("Date")}")
-                Log.d("TheVar", ": ${response.headers("Vary")}")
-
-                Log.d("TheVar", ": ${response.body?.string()}")
-            }
-
-
-
-        } catch (e: IOException) {
-            Log.d("TheVar", ": ${e.localizedMessage}")
-
-        }
-
-
-         */
-
-
-
-
-
-
-
-
-            /*
-            Handler().postDelayed({
-                val intent = Intent(this, SelectContextScreen::class.java)
-                startActivity(intent)
-            }, 3000)
-
-             */
-
-
-
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            /*
-
-            val outputDir = Environment.getExternalStorageDirectory().resolve("recordings")
-            if (!outputDir.exists()) {
-                outputDir.mkdirs()
-            }
-            Log.d("YourTag", "Output directory path: ${outputDir.absolutePath}")
-            val voiceRecorder = VoiceRecorder(outputDir)
-
-            var permission: Boolean =
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-            val launcher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> permission = granted }
-
-            if (!permission) {
-                launcher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            }
-
-            voice_button.setOnClickListener {
-
-                voiceRecorder.startRecording()
-
-                voice_button.isEnabled = false
-
-                while (voiceRecorder.isRecording) {}
-
-                voice_button.isEnabled = true
-                Log.d("YourTag", "Recording DONE")
-
-                val recordedFilePath = voiceRecorder.getRecordedFilePath()
-
-
-            }
-
-
-             */
-
-
-
-
-
-
-// Create an output directory for the recorded files
-// Create an instance of VoiceRecorder
-
-
-
-
-// Delete the recorded file
-            //voiceRecorder.deleteRecordedFile()
-            //Log.d("YourTag", "Recorded file deleted.")
-
-
-
-
-
-
-    }

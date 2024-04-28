@@ -4,10 +4,11 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.Gravity
-import android.view.MotionEvent
 import android.view.View
 import android.view.Window
 import android.view.inputmethod.InputMethodManager
@@ -17,7 +18,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -29,33 +29,40 @@ import androidx.lifecycle.lifecycleScope
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
+import com.aldebaran.qi.sdk.builder.AnimateBuilder
+import com.aldebaran.qi.sdk.builder.AnimationBuilder
 import com.aldebaran.qi.sdk.builder.ListenBuilder
+import com.aldebaran.qi.sdk.builder.PhraseSetBuilder
 import com.aldebaran.qi.sdk.builder.SayBuilder
+import com.aldebaran.qi.sdk.`object`.actuation.Animate
+import com.aldebaran.qi.sdk.`object`.actuation.Animation
+import com.aldebaran.qi.sdk.`object`.conversation.Listen
+import com.aldebaran.qi.sdk.`object`.conversation.ListenResult
+import com.aldebaran.qi.sdk.`object`.conversation.PhraseSet
 import com.example.Core.AppAction
 import com.example.Core.AppViewModel
 import com.example.Core.Artificial_intelligence_model
-
-import com.example.Core.RealSpeechToText
 import com.example.Core.SummarizeUiState
-
 import com.example.Core.getCategoryInfo
 import com.example.Utils.InactivityTimer
 import com.example.empathymap.R
-import kotlinx.coroutines.launch
-
 import com.example.Core.Category
+import com.example.Core.VoiceRecorder
 import com.example.Core.category
+import kotlinx.coroutines.launch
+import pl.droidsonroids.gif.GifImageView
+import java.io.File
 
 
 val IS_ROBOT: Int = (1 shl 0)
 val IS_LAST_ITEM: Int = (1 shl 1)
 val IS_NOT_ROBOT: Int = (1 shl 2)
 val IS_IS_LOADING: Int = (1 shl 3)
-val MAKE_ROBOT_LISTEN: Int = 1
-val MAKE_ROBOT_SAY: Int = 2
 
-
-
+val MAKE_ROBOT_LISTEN: Int = (1 shl 4)
+val MAKE_ROBOT_SAY: Int    = (1 shl 5)
+val MAKE_THINKING: Int     = (1 shl 6)
+val MAKE_ROBOT_SAD: Int = (1 shl 7)
 
 
 class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
@@ -66,192 +73,215 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     private lateinit var messageInput: EditText
     private lateinit var sendButton: ImageButton
     private lateinit var Back_button: ImageButton
-    private lateinit var voice_button: ImageButton
+    private lateinit var Voice_Gif: GifImageView
+    private lateinit var Error_Gif: GifImageView
+
+
     private lateinit var toolbarTitle: TextView
     private val SviewModel: Artificial_intelligence_model by viewModels()
-    private lateinit var stt: RealSpeechToText
-    private lateinit var viewModel: AppViewModel
     private var messageList = mutableListOf<Pair<Int, String>>()
     private var EditMessageState by mutableStateOf(false)
     private var qiContext: QiContext? = null
     var ToShortMessage: String = ""
-    private var PepperState: Int = 0
+    private var PepperState: Int = MAKE_ROBOT_LISTEN
+    private lateinit var Recorder: VoiceRecorder
+    private lateinit var viewModel: AppViewModel
+    private lateinit var outputDir: File
+    private lateinit var mediaPlayerStart:MediaPlayer
+    private lateinit var mediaPlayerStop: MediaPlayer
 
 
+    // Make robot focus on HeyPepper or click on button
+    // When one happen start recording until user stop
+    // Generating message by AI
+    // Display result and make it say it
+    // when error removeAllView and display gif
+    // re init pepper to listen on "hey pepper"
+    //think X 2 3
 
+    //
+    fun startListen() {
+        Voice_Gif.isEnabled = false
+
+        // start siri and remove robot focus change the gif animation //
+
+        this.qiContext?.let { QiSDK.unregister(this, this) }
+        mediaPlayerStart.start()
+        Voice_Gif.setImageResource(R.drawable.animation___1714146401968)
+
+        // here to start voice recording //
+        captureAndTranscribe {
+            // make robot is think and reset the gif and start stop sound //
+            mediaPlayerStop.start()
+            runOnUiThread {
+                Voice_Gif.setImageResource(R.drawable.anim)
+            }
+            PepperState = MAKE_THINKING
+            this.qiContext?.let { QiSDK.register(this, this) }
+        }
+
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
+            super.onCreate(savedInstanceState)
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
 
+            launchPermissionRequest()
+            supportActionBar?.hide()
+            setContentView(R.layout.activity_chat_screen)
+            inactivityTimer = InactivityTimer(this, 420000)
 
-        category = Category.EDUCATION_AND_LEARNING
+            /* setup layout ids */
+            toolbarTitle = findViewById(R.id.toolbarTitle)
+            Back_button = findViewById(R.id.backButton)
+            chatLayout = findViewById(R.id.chat_messages_layout)
+            scrollView = findViewById(R.id.chat_layout)
+            messageInput = findViewById(R.id.messageInput)
+            sendButton = findViewById(R.id.sendButton)
+            Voice_Gif = findViewById(R.id.gifButton)
+            Error_Gif = findViewById(R.id.ErrorGif)
 
-        window.decorView.systemUiVisibility =
-            (View.SYSTEM_UI_FLAG_IMMERSIVE or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_FULLSCREEN)
+            mediaPlayerStart = MediaPlayer.create(this, R.raw.siri_start)
+            mediaPlayerStop  = MediaPlayer.create(this, R.raw.siri_stop)
 
-        supportActionBar?.hide()
-        setContentView(R.layout.activity_chat_screen)
-        QiSDK.register(this, this)
-        inactivityTimer = InactivityTimer(this, 420000)
-        toolbarTitle = findViewById(R.id.toolbarTitle)
-        Back_button = findViewById(R.id.backButton)
+            toolbarTitle.text = getCategoryInfo(category as Category).name /* set navbar category */
 
-        chatLayout = findViewById(R.id.chat_messages_layout)
-        scrollView = findViewById(R.id.chat_layout)
-        messageInput = findViewById(R.id.messageInput)
-        sendButton = findViewById(R.id.sendButton)
-        voice_button = findViewById(R.id.voiceButton)
-        toolbarTitle.text = getCategoryInfo(category as Category).name
+            /* setup Voice */
+            outputDir = File(Environment.getExternalStorageDirectory(), "recordings")
+            Recorder = VoiceRecorder(outputDir)
+            viewModel = AppViewModel(Recorder)
 
-        /* SetupVoice: Activity*/
-        var permission: Boolean =
-            ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-        val launcher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> permission = granted }
-        stt = RealSpeechToText(this)
-        viewModel = AppViewModel(stt)
+            QiSDK.register(this, this) /*make robot focus on first lunch*/
 
-        voice_button.setOnTouchListener { view, motionEvent ->
-            when (motionEvent.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    Toast.makeText(this, "Pepper Listen!", Toast.LENGTH_LONG).show()
+            Voice_Gif.setOnClickListener {
+                startListen()
+            }
+
+            /*  Done funcs */
+
+            Back_button.setOnClickListener {
+                val intent = Intent(this, HomeScreen::class.java)
+                startActivity(intent)
+            }
+
+            sendButton.setOnClickListener {
+                if (EditMessageState) {
                     try {
-                        if (permission) {
-                            viewModel.send(AppAction.StartRecord)
-                        } else {
-                            launcher.launch(Manifest.permission.RECORD_AUDIO)
-                        }
-                    } catch (e: Exception) {
-                        Toast.makeText(this, e.message ?: "An error occurred", Toast.LENGTH_LONG).show()
+                        Voice_Gif.visibility = View.VISIBLE
+                        messageInput.visibility = View.GONE
+                        sendButton.visibility = View.GONE
+                        removeLastAddedNodes(true)
+                    } catch (e: Exception) {}
+                    EditMessageState = false
+                }
+                val message = messageInput.text.toString().trim()
+                if (message.isNotEmpty()) {
+                    UpdateNode(IS_NOT_ROBOT)
+                    messageList.add((IS_LAST_ITEM or IS_NOT_ROBOT) to message)
+                    addMessage(message, (IS_LAST_ITEM or IS_NOT_ROBOT))
+                    scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
+                    SviewModel.summarize(message)
+                    messageInput.text.clear()
+                }
+            }
+
+            lifecycleScope.launchWhenStarted { SviewModel.uiState.collect { newState -> renderChatContent(newState) } }
+
+            lifecycleScope.launch {
+                viewModel.state.collect { state ->
+
+                    if (state.display?.isNotEmpty() == true) {
+                        Recorder.deleteRecordedFile()
+                        messageList.add((IS_LAST_ITEM or IS_NOT_ROBOT) to state.display)
+                        SviewModel.summarize(state.display)
+                        SviewModel.resetUiStateToInitial()
+                    } else if (state.display?.isNotEmpty() == false) {
+                        Init()
+                        Log.d("EXECPTION:", "FORWARDING EXPESION")
+                    } else {
+                        SetupErrorGif()
                     }
-                    true
-                }
-                MotionEvent.ACTION_UP -> {
-                    try {
-                        viewModel.send(AppAction.EndRecord)
-                    } catch (e: Exception) {
-                        Toast.makeText(this, e.message ?: "An error occurred", Toast.LENGTH_LONG).show()
-                    }
-                    view.performClick()
-                    true
-                }
-                else -> false
-            }
-        }
-
-
-
-
-
-        // voice Icon
-        // start animation
-        // start Listen
-        // send to back-end
-        // get response
-        // reset state
-
-
-
-        Back_button.setOnClickListener {
-            val intent = Intent(this, HomeScreen::class.java)
-            startActivity(intent)
-        }
-
-        sendButton.setOnClickListener {
-            if (EditMessageState) {
-                try {
-                    removeLastAddedNodes(true)
-                } catch (e: Exception) {}
-                EditMessageState = false
-            }
-            val message = messageInput.text.toString().trim()
-            if (message.isNotEmpty()) {
-                UpdateNode(IS_NOT_ROBOT)
-                messageList.add((IS_LAST_ITEM or IS_NOT_ROBOT) to message)
-                addMessage(message, (IS_LAST_ITEM or IS_NOT_ROBOT))
-                scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
-                SviewModel.summarize(message, false)
-                messageInput.text.clear()
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.state.collect { state ->
-                if (state.display.isNotEmpty()) {
-
-                    // When robot say something it will redirect with this
-                    messageList.add((IS_LAST_ITEM or IS_NOT_ROBOT) to state.display)
-                    SviewModel.summarize(state.display, false)
-                    // here
-
-                    SviewModel.resetUiStateToInitial()
                 }
             }
-        }
-
-
-        lifecycleScope.launchWhenStarted { SviewModel.uiState.collect { newState -> renderChatContent(newState) } }
     }
 
+    private  fun SetupErrorGif() {
+        chatLayout.removeAllViews()
+        sendButton.visibility = View.GONE
+        messageInput.visibility = View.GONE
+        Voice_Gif.visibility = View.GONE
+        Error_Gif.visibility = View.VISIBLE
 
+        PepperState = MAKE_ROBOT_SAD
+        this.qiContext?.let { QiSDK.register(this, this) }
 
+        Error_Gif.setOnClickListener {
+            Voice_Gif.visibility = View.VISIBLE
+            Error_Gif.visibility = View.GONE
+            updateScreen()
+            Init()
+        }
+    }
 
+    private fun captureAndTranscribe(onRecordingFinished: () -> Unit) {
+        viewModel.send(AppAction.StartRecord)
 
+        Log.d("voice_start", ": the voice is start recording")
 
+        Recorder.onRecordingFinishedListener = {
 
+            Log.d("voice_start", ": the voice is STOP recording")
 
-
+            var voice_path = Recorder.getRecordedFilePath()!!
+            viewModel.send(AppAction.SetUpHttpRequest(voice_path))
+            onRecordingFinished()
+        }
+    }
 
     /* List Methods */
     private fun renderChatContent(newState: SummarizeUiState) {
-
         var IsSay = false
-
         var state =
             when (newState) {
-                is SummarizeUiState.Initial -> {
-                    false
-                }
-                is SummarizeUiState.Loading -> {
-                    // make pepper thinking //
-                    true
-                }
-                is SummarizeUiState.PepperSay -> {
-                    ToShortMessage = newState.string_to_say
-                    Log.d("robot-str: ", "$ToShortMessage")
-                    IsSay = true
-                    true
-                }
+                is SummarizeUiState.Initial -> {  false  }
+                is SummarizeUiState.Loading -> {  true   }
                 is SummarizeUiState.Success -> {
                     UpdateNode(IS_ROBOT)
                     messageList.add((IS_ROBOT or IS_LAST_ITEM) to newState.outputText)
-                    SviewModel.summarize(newState.outputText, true)
+                    ToShortMessage = newState.outputText
+                    IsSay = true
                     SviewModel.resetUiStateToInitial()
-                    false
+                    true
                 }
                 is SummarizeUiState.Error -> {
-                    UpdateNode(IS_ROBOT)
-                    messageList.add((IS_ROBOT or IS_LAST_ITEM) to newState.errorMessage)
+                    SetupErrorGif()
                     SviewModel.resetUiStateToInitial()
                     false
                 }
             }
         if (!IsSay) {
             if (!state) {
-                chatLayout.removeAllViews()
-                messageList.forEach { (flag, message) -> addMessage(message, flag) }
+                updateScreen()
             } else {
                 addMessage("", IS_IS_LOADING)
             }
             scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
         } else {
+            PepperState = MAKE_ROBOT_SAY
+            this.qiContext?.let { QiSDK.unregister(this, this) }
             this.qiContext?.let { QiSDK.register(this, this) }
         }
+    }
+
+    private fun updateScreen() {
+        chatLayout.removeAllViews()
+        messageList.forEach { (flag, message) -> addMessage(message, flag) }
+    }
+
+    private fun Init() {
+        Voice_Gif.isEnabled = true
+        ToShortMessage = ""
+        PepperState = MAKE_ROBOT_LISTEN
+        this.qiContext?.let { QiSDK.register(this, this) }
     }
 
     private fun addMessage(message: String, flag: Int) {
@@ -268,11 +298,16 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             visibleOrNotLayout.visibility = if (flag and IS_LAST_ITEM != 0) View.VISIBLE else View.GONE
             var buttonEffect: ImageView =
                 visibleOrNotLayout.findViewById(if ((flag and IS_ROBOT) != 0) R.id.refresh_button else R.id.edit_messageIcon)
+
             buttonEffect.setOnClickListener {
+                this.qiContext?.let { QiSDK.unregister(this, this) }
                 if (flag and IS_ROBOT != 0) {
                     removeLastAddedNodes(false)
-                    SviewModel.summarize(messageList[findLastIndexOfFlag(IS_NOT_ROBOT)].second, false)
+                    SviewModel.summarize(messageList[findLastIndexOfFlag(IS_NOT_ROBOT)].second)
                 } else {
+                    Voice_Gif.visibility = View.GONE
+                    messageInput.visibility = View.VISIBLE
+                    sendButton.visibility = View.VISIBLE
                     messageInput.setText(messageList[findLastIndexOfFlag(IS_NOT_ROBOT)].second)
                     EditMessageState = true
                     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -330,7 +365,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         }
     }
 
-    fun markdownToPlainText(markdown: String): String {
+    private fun markdownToPlainText(markdown: String): String {
         return markdown
             .replace(Regex("\\*\\*(.*?)\\*\\*"), "$1")
             .replace(Regex("\\*(.*?)\\*"), "$1")
@@ -339,26 +374,77 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             .replace(Regex("\n"), " ")
     }
 
-    override fun onRobotFocusGained(qiContext: QiContext?) {
+    private fun launchPermissionRequest() {
+        var recordPermission: Boolean = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        var storagePermission: Boolean = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
 
+        val launcher_1 = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> recordPermission = granted }
+        val launcher_2 = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> storagePermission = granted }
+
+        if (!recordPermission)  launcher_1.launch(Manifest.permission.RECORD_AUDIO)
+        if (!storagePermission) launcher_2.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    }
+
+
+    /* Robot funcs */
+
+    override fun onRobotFocusGained(qiContext: QiContext?) {
         this.qiContext = qiContext
 
-        if (PepperState == MAKE_ROBOT_SAY ) {
-            PepperState = 0
+        if ( PepperState == MAKE_ROBOT_SAY ) {
             val Make_Robot_Say = SayBuilder.with(qiContext).withText(markdownToPlainText(ToShortMessage)).build()
             Make_Robot_Say.run()
-            ToShortMessage = ""
+            runOnUiThread {
+                Init()
+            }
+            Log.d("pepper:", " re init")
         }
-        if (PepperState == MAKE_ROBOT_LISTEN) {
+
+        else if (PepperState == MAKE_ROBOT_LISTEN) {
+
+            val phraseSet: PhraseSet = PhraseSetBuilder.with(qiContext)
+                .withTexts("hello")
+                .build()
+            val listen: Listen = ListenBuilder.with(qiContext)
+                .withPhraseSet(phraseSet)
+                .build()
+
+            val listenResult: ListenResult = listen.run()
+
+            if  (listenResult.heardPhrase.text.toLowerCase() == "hello"){
+                runOnUiThread {
+                    startListen()
+                }
+            }
             PepperState = 0
-
-            // Listen for Hey Pepper
-            // start recording
-            // save it
-            // send to backend
-            // do other thing
+        } else if (PepperState == MAKE_THINKING) {
+            // this not Perfect good to use media
+            val ret = "let me think !"
+            val TheStringToSay = SayBuilder.with(qiContext)
+                .withText(ret)
+                .build()
+            val animation_5: Animation = AnimationBuilder.with(qiContext)
+                .withResources(R.raw.show_head_01).build()
+            val animate_5: Animate = AnimateBuilder.with(qiContext)
+                .withAnimation(animation_5)
+                .build()
+            animate_5.async().run()
+            TheStringToSay.async().run()
+            PepperState = 0
+        } else if (PepperState == MAKE_ROBOT_SAD) {
+            val ret = "Oooooh !"
+            val TheStringToSay = SayBuilder.with(qiContext)
+                .withText(ret)
+                .build()
+            val animation_5: Animation = AnimationBuilder.with(qiContext)
+                .withResources(R.raw.sadreaction_02).build()
+            val animate_5: Animate = AnimateBuilder.with(qiContext)
+                .withAnimation(animation_5)
+                .build()
+            animate_5.async().run()
+            TheStringToSay.async().run()
+            PepperState = 0
         }
-
     }
 
     override fun onRobotFocusLost() {
@@ -377,3 +463,86 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     override fun onRobotFocusRefused(reason: String?) {}
 
 }
+
+
+
+
+/*
+    private fun captureAndTranscribe_() {
+
+        viewModel.send(AppAction.StartRecord)
+        // remove the button of start listen and display gif
+
+        Log.d("voice_start", ": the voice is start recording")
+
+        while (Recorder.isRecording) {} // loop until finish
+
+        Log.d("voice_start", ": the voice is STOP recording")
+
+        var voice_path = Recorder.getRecordedFilePath()!!
+
+        viewModel.send(AppAction.SetUpHttpRequest(voice_path))
+    }
+
+
+     */
+
+
+// Get OpenAI key
+// Hey pepper and button 2 listen
+// Gif for Error
+// Gif for Listing
+// Gif for
+
+/*
+
+                if (!Showing)
+            Showing = true
+        else
+            Showing = false
+
+        if (Showing) {
+            Voice_Gif.visibility = View.VISIBLE
+            messageInput.visibility = View.GONE
+            sendButton.visibility = View.GONE
+        } else {
+            Voice_Gif.visibility = View.GONE
+            messageInput.visibility = View.VISIBLE
+            sendButton.visibility = View.VISIBLE
+        }
+
+ */
+
+// old
+/*
+        voice_button.setOnTouchListener { view, motionEvent ->
+            when (motionEvent.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    Toast.makeText(this, "Pepper Listen!", Toast.LENGTH_LONG).show()
+                    try {
+                        if (permission) {
+                            viewModel.send(AppAction.StartRecord)
+                        } else {
+                            launcher.launch(Manifest.permission.RECORD_AUDIO)
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(this, e.message ?: "An error occurred", Toast.LENGTH_LONG).show()
+                    }
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    try {
+                        viewModel.send(AppAction.EndRecord)
+                    } catch (e: Exception) {
+                        Toast.makeText(this, e.message ?: "An error occurred", Toast.LENGTH_LONG).show()
+                    }
+                    view.performClick()
+                    true
+                }
+                else -> false
+            }
+        }
+
+
+
+ */

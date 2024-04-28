@@ -1,83 +1,99 @@
 package com.example.Core
 
-import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import android.speech.RecognitionListener
-import android.speech.RecognizerIntent
-import android.speech.SpeechRecognizer
+import android.media.MediaRecorder
 import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import java.util.Locale
+import java.io.File
+import java.io.IOException
 
-interface SpeechToText {
-    val text: StateFlow<String>
-    fun start()
-    fun stop()
-}
+class VoiceRecorder(private val outputDir: File) {
 
-class RealSpeechToText(context: Context) : SpeechToText {
-    override val text = MutableStateFlow("")
+    private var mediaRecorder: MediaRecorder? = null
+    private var outputFile: File? = null
+    var isRecording = false
+    var onRecordingFinishedListener: (() -> Unit)? = null
 
-    private val speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
-        setRecognitionListener(object : RecognitionListener {
-            override fun onReadyForSpeech(p0: Bundle?) = Unit
-            override fun onBeginningOfSpeech() = Unit
-            override fun onRmsChanged(p0: Float) = Unit
-            override fun onBufferReceived(p0: ByteArray?) = Unit
-            override fun onEndOfSpeech() = Unit
-            override fun onResults(results: Bundle?) = Unit
-            override fun onEvent(p0: Int, p1: Bundle?) = Unit
+    private val MIN_SILENCE_DURATION_MS = 3200 // LAST 1200
+    private val SILENCE_THRESHOLD_DB = 0
+    private var lastSilenceTime: Long = 0
 
-            override fun onPartialResults(results: Bundle?) {
-                val partial = results
-                    ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                    ?.getOrNull(0) ?: ""
-                text.value = partial
-            }
-
-            override fun onError(error: Int) {
-                val message = when (error) {
-                    SpeechRecognizer.ERROR_AUDIO -> "Audio"
-                    SpeechRecognizer.ERROR_CANNOT_CHECK_SUPPORT -> "Cannot Check Support"
-                    SpeechRecognizer.ERROR_CLIENT -> "Client"
-                    SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient Permissions"
-                    SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED -> "Language Not Supported"
-                    SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE -> "Language Unavailable"
-                    SpeechRecognizer.ERROR_NETWORK -> "Network"
-                    SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network Timeout"
-                    SpeechRecognizer.ERROR_NO_MATCH -> "No Match"
-                    SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Busy"
-                    SpeechRecognizer.ERROR_SERVER -> "Server Error"
-                    SpeechRecognizer.ERROR_SERVER_DISCONNECTED -> "Server Disconnected"
-                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Speech Timeout"
-                    SpeechRecognizer.ERROR_TOO_MANY_REQUESTS -> "Too Many Requests"
-                    else -> "Unknown"
+    init {
+        if (!outputDir.exists()) {
+            outputDir.mkdirs()
+        }
+    }
+    fun startRecording() {
+        if (mediaRecorder == null) {
+            mediaRecorder = MediaRecorder()
+            try {
+                val fileName = "voice_${System.currentTimeMillis()}.mp3"
+                outputFile = File(outputDir, fileName)
+                mediaRecorder?.apply {
+                    setAudioSource(MediaRecorder.AudioSource.MIC)
+                    setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                    setOutputFile(outputFile?.absolutePath)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+                    prepare()
+                    start()
+                    lastSilenceTime = System.currentTimeMillis()
+                    isRecording = true
+                    Thread {
+                        while (isRecording) {
+                            val amplitude = getMaxAmplitude()
+                            Log.d("YourTag", "amplitude: $amplitude")
+                            val audioLevel = amplitude / 2000 // Adjust as needed
+                            Log.d("YourTag", "the level: $audioLevel")
+                            processAudioLevel(audioLevel)
+                            Thread.sleep(100) // Adjust as needed, this controls how often you check the amplitude
+                        }
+                    }.start()
                 }
-                Log.e("Speech Recognizer", "STT Error: $message")
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
-        })
-    }
-    private val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-        putExtra(
-            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-        )
-        putExtra(
-            RecognizerIntent.EXTRA_LANGUAGE,
-            Locale.getDefault()
-        )
-        putExtra(
-            RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
-            5000
-        )
-    }
-    override fun start() {
-        speechRecognizer.startListening(intent)
+        }
     }
 
-    override fun stop() {
-        speechRecognizer.stopListening()
+    fun stopRecording() {
+        Log.d("YourTag", "i try to stop")
+        if (mediaRecorder != null && isRecording) {
+            try {
+                mediaRecorder?.stop()
+                mediaRecorder?.release()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                mediaRecorder = null
+                isRecording = false
+                onRecordingFinishedListener?.invoke()
+            }
+        }
+    }
+
+    fun getRecordedFilePath(): String? {
+        return outputFile?.absolutePath
+    }
+
+    fun deleteRecordedFile() {
+        outputFile?.delete()
+    }
+
+    fun processAudioLevel(audioLevel: Int) {
+        if (!isRecording) return
+
+        if (audioLevel <= SILENCE_THRESHOLD_DB) {
+
+            val currentTime = System.currentTimeMillis()
+
+            Log.d("YourTag", "last-time: $lastSilenceTime")
+            Log.d("YourTag", "curr-time: $currentTime")
+            Log.d("YourTag", "MIN: ${currentTime - lastSilenceTime}")
+
+            if ((currentTime - lastSilenceTime) >= MIN_SILENCE_DURATION_MS) {
+                stopRecording()
+            }
+        } else {
+            lastSilenceTime = System.currentTimeMillis()
+        }
     }
 }

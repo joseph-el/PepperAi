@@ -32,10 +32,12 @@
         <activity android:name="com.example.Screen.TakePictureScreen" />
 
         <activity android:name="com.example.Screen.WelcomeScreen" />
+        <activity android:name="com.example.Screen.ChatScreen" />
+
         <activity android:name="com.example.Screen.HomeScreen" />
         <activity android:name="com.example.Screen.SelectContextScreen" />
         <activity
-            android:name="com.example.Screen.ChatScreen"
+            android:name="com.example.PepperMainActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>

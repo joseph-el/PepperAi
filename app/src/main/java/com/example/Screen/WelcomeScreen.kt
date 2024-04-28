@@ -97,7 +97,7 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
 
     private fun PepperTalkWithDetectedHumans(humans: List<Human>) {
         val TalkWithHuman = SayBuilder.with(qiContext)
-            .withText("Heey come to talk with me !!")
+            .withText("Heey comme to talk with me !!")
             .build()
         val TalkWithMoreThanHuman = SayBuilder.with(qiContext)
             .withText("Hello Pepople iam alone can someone Talk to me ?")

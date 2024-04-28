@@ -9,10 +9,6 @@ sealed interface SummarizeUiState {
         val outputText: String
     ) : SummarizeUiState
 
-    data class PepperSay(
-        val string_to_say: String
-    ) : SummarizeUiState
-
     data class Error(
         val errorMessage: String
     ) : SummarizeUiState

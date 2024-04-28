@@ -3,7 +3,7 @@ package com.example.Core
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.ai.client.generativeai.GenerativeModel
+import com.example.configManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,9 +18,31 @@ import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 
-
 var category: Category? = null
 
+/*
+
+    val apiKey = "your_openai_api_key"
+    val file = File("/path/to/file/audio.mp3")
+    val url = "https://api.openai.com/v1/audio/transcriptions"
+
+    val client = OkHttpClient()
+
+    val requestBody = MultipartBody.Builder()
+        .setType(MultipartBody.FORM)
+        .addFormDataPart("file", "audio.mp3", file.asRequestBody("audio/mp3".toMediaType()))
+        .addFormDataPart("timestamp_granularities[]", "word")
+        .addFormDataPart("model", "whisper-1")
+        .addFormDataPart("response_format", "verbose_json")
+        .build()
+
+    val request = Request.Builder()
+        .url(url)
+        .addHeader("Authorization", "Bearer $apiKey")
+        .post(requestBody)
+        .build()
+
+ */
 
 class Artificial_intelligence_model() : ViewModel() {
 
@@ -33,71 +55,59 @@ class Artificial_intelligence_model() : ViewModel() {
         _uiState.value = SummarizeUiState.Initial
     }
 
-    fun summarize(inputText: String, isGetShortMessage: Boolean) {
-
-        val jsonObject = JSONObject()
-
-        if (isGetShortMessage) {
-            val briefPrompt = prepareBriefPrompt(inputText)
-            jsonObject.put("question", briefPrompt)
-            generateMessage(jsonObject.toString(), true)
-            return
-        }
-
-        jsonObject.put("question", prepareFullPrompt(inputText))
+    fun setUiStateToLoading() {
         _uiState.value = SummarizeUiState.Loading
-        generateMessage(jsonObject.toString(), false)
     }
 
-    private fun prepareBriefPrompt(inputText: String): String =
-        "As Pepper robot, based on the detailed response provided by Pepper: '[$inputText]', " +
-                "please generate a concise summary that captures the essential points and do not change the speaker's form. " +
-                "Please respond in plain text without using any Markdown formatting or links."
+    fun summarize(inputText: String) {
+
+        try {
+            val jsonObject = JSONObject()
+            jsonObject.put("question", prepareFullPrompt(inputText))
+            _uiState.value = SummarizeUiState.Loading
+            generateMessage(jsonObject.toString())
+        } catch (e:Exception) {
+            _uiState.value = SummarizeUiState.Error("${e.localizedMessage}")
+        }
+    }
+
     private fun prepareFullPrompt(inputText: String): String {
         val categoryInfo = getCategoryInfo(category as Category)
-        return "As Pepper robot, based on the description of the [$category] category, which includes [$categoryInfo]," +
-                "please provide an answer to the following user query: [$inputText]. " +
-                "If the query does not align with the category description, please utilize creative reasoning to offer a smart and relevant response. " +
-                "Please respond in plain text without using any Markdown formatting or links."
+        return "As a Pepper robot, for the category [$category] with details [$categoryInfo], " +
+                "please provide a concise and relevant response to: [$inputText]. " +
+                "If the query does not align with the category, utilize creative reasoning. " +
+                "Ensure the response is short (focus on the response should be shorted for make pepper robot say it easy), plain text, and free from formatting or links."
     }
 
-    fun generateMessage(prompt: String, IsBriefMessage: Boolean) {
+    fun generateMessage(prompt: String) {
         viewModelScope.launch {
-
-                val request = Request.Builder()
-                    .url("http://10.0.2.2:3000/api/v1/prediction/4db24f95-4bd3-4189-b44f-3a3ea72d9c37")
-                    .post(prompt.toRequestBody(JSON))
-                    .build()
-
-                client.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        try {
-                            throw IOException("Request failed: ${e.localizedMessage}")
-                        } catch (e: Exception) {
-                            if (!IsBriefMessage)
+                try {
+                    val request = Request.Builder()
+                        .url("http://${configManager.getValueByKey("ip-address")}:${configManager.getValueByKey("port")}${configManager.getValueByKey("route")}")
+                        .post(prompt.toRequestBody(JSON))
+                        .build()
+                    client.newCall(request).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            try {
+                                throw IOException("Request failed: ${e.localizedMessage}")
+                            } catch (e: Exception) {
                                 _uiState.value = SummarizeUiState.Error(e.localizedMessage)
-                            else
-                                _uiState.value = SummarizeUiState.PepperSay(e.localizedMessage)
+                            }
                         }
-                    }
-                    override fun onResponse(call: Call, response: Response) {
+                        override fun onResponse(call: Call, response: Response) {
+                            try {
+                                val jsonObject = JSONObject(response.body?.string())
+                                val ret = jsonObject.getString("text")
+                                _uiState.value = SummarizeUiState.Success(ret)
+                            } catch (e:Exception) {
+                                _uiState.value = SummarizeUiState.Error("${e.localizedMessage}")
+                            }
 
-                        var ret:String = "pepper"
-                       // Log.d("robot-respose: ", "${response.body?.string()}")
-                        val jsonObject = JSONObject(response.body?.string())
-
-                        try {
-                            ret = jsonObject.getString("text")
-                        }catch (e:Exception) {}
-
-                        if (!IsBriefMessage)
-                            _uiState.value = SummarizeUiState.Success(ret)
-                        else {
-                            _uiState.value = SummarizeUiState.PepperSay(ret)
                         }
-                    }
-                })
-
+                    })
+                }   catch (e: Exception) {
+                        _uiState.value = SummarizeUiState.Error(e.localizedMessage)
+                }
         }
     }
     companion object {
@@ -133,6 +143,21 @@ class Artificial_intelligence_model() : ViewModel() {
 
 
 /*
+
+          private fun prepareBriefPrompt(inputText: String): String =
+        "As Pepper robot, based on the detailed response provided by Pepper: '[$inputText]', " +
+                "please generate a concise summary that captures the essential points and do not change the speaker's form. " +
+                "Please respond in plain text without using any Markdown formatting or links."
+    private fun prepareFullPrompt_(inputText: String): String {
+        val categoryInfo = getCategoryInfo(category as Category)
+        return "As Pepper robot, based on the description of the [$category] category, which includes [$categoryInfo]," +
+                "please provide an answer to the following user query: [$inputText]. " +
+                "If the query does not align with the category description, please utilize creative reasoning to offer a smart and relevant response. " +
+                "Please respond in plain text without using any Markdown formatting or links."
+    }
+
+
+
         fun generateMessage(prompt: String, isGetShortMessage: Boolean) {
 
             val client = OkHttpClient()

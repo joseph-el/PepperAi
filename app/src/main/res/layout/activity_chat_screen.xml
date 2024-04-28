@@ -67,6 +67,10 @@
         android:layout_below="@id/toolbar"
         android:background="#41FFFFFF" />
 
+
+    <!--
+        TODO: add GIF Error
+    -->
     <ScrollView
         android:id="@+id/chat_layout"
         android:layout_width="match_parent"
@@ -83,11 +87,12 @@
             android:padding="16dp">
 
             <pl.droidsonroids.gif.GifImageView
+                android:id="@+id/ErrorGif"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/anim"
                 />
-
 
             <include layout="@layout/user_chat_bubbles" />
 
@@ -99,7 +104,6 @@
 
 
 
-
     <LinearLayout
         android:id="@+id/sendBar"
         android:layout_width="match_parent"
@@ -108,19 +112,19 @@
         android:orientation="horizontal"
         android:padding="16dp">
 
-        <ImageButton
-            android:id="@+id/voiceButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginRight="10dp"
-            android:layout_weight="1"
-            android:background="@null"
-            android:src="@drawable/voiceicon" />
+
+        <pl.droidsonroids.gif.GifImageView
+            android:id="@+id/gifButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/anim"
+            />
 
         <EditText
             android:id="@+id/messageInput"
             android:layout_height="wrap_content"
             android:layout_width="0dp"
+            android:visibility="gone"
             android:layout_weight="17"
             android:background="@drawable/ios_text_send_background"
             android:paddingVertical="12dp"
@@ -133,14 +137,28 @@
 
         <ImageButton
             android:id="@+id/sendButton"
-
+            android:visibility="gone"
             android:layout_width="48dp"
             android:layout_height="48dp"
-
             android:layout_weight="1"
             android:background="@null"
             android:src="@drawable/sendicon" />
 
+
     </LinearLayout>
 
+
+
+
 </RelativeLayout>
+
+<!--
+     <ImageButton
+            android:id="@+id/voiceButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:src="@drawable/voiceicon" />
+-->

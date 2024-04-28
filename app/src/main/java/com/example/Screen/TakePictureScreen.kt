@@ -189,7 +189,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         runOnUiThread { takePictureButton.isEnabled = false }
 
         val say1 = SayBuilder.with(qiContext)
-            .withText("Make SmiiiiiiLee !")
+            .withText("Make Smile")
             .build()
 
         val say2 = SayBuilder.with(qiContext)
@@ -220,8 +220,6 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         TimeUnit.SECONDS.sleep(2L)
         say3.async().run()
         TimeUnit.SECONDS.sleep(2L)
-        say4.async().run()
-        TimeUnit.SECONDS.sleep(3L)
         say4.async().run()
         TimeUnit.SECONDS.sleep(2L)
         animate_1.async().run()
