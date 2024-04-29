@@ -1,6 +1,5 @@
 package com.example.Core
 
-import android.content.Context
 import android.os.Environment
 import android.util.Log
 import org.json.JSONObject
@@ -13,7 +12,6 @@ class ConfigManager(private val fileName: String) {
     init {
         loadConfig()
     }
-
     private fun loadConfig() {
         try {
             val openDir = File(Environment.getExternalStorageDirectory(), "Recordings")

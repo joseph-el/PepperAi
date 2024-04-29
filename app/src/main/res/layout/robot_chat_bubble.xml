@@ -62,10 +62,10 @@
 
                 <ImageView
                     android:id="@+id/refresh_button"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                    android:layout_width="27dp"
+                    android:layout_height="27dp"
                     android:layout_marginEnd="5dp"
-                    android:src="@drawable/refresh" />
+                    android:src="@drawable/refresh_regular" />
 
             </LinearLayout>
 

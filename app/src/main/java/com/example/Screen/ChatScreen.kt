@@ -1,9 +1,7 @@
 package com.example.Screen
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Environment
@@ -20,13 +18,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
@@ -51,8 +47,6 @@ import com.example.empathymap.R
 import com.example.Core.Category
 import com.example.Core.VoiceRecorder
 import com.example.Core.category
-import eightbitlab.com.blurview.BlurView
-import eightbitlab.com.blurview.RenderScriptBlur
 import kotlinx.coroutines.launch
 import pl.droidsonroids.gif.GifImageView
 import java.io.File
@@ -62,6 +56,7 @@ val IS_ROBOT: Int = (1 shl 0)
 val IS_LAST_ITEM: Int = (1 shl 1)
 val IS_NOT_ROBOT: Int = (1 shl 2)
 val IS_IS_LOADING: Int = (1 shl 3)
+var USER_LOADING: Int = (1 shl 4)
 
 val MAKE_ROBOT_LISTEN: Int = (1 shl 4)
 val MAKE_ROBOT_SAY: Int    = (1 shl 5)
@@ -95,37 +90,37 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     private lateinit var mediaPlayerStop: MediaPlayer
 
 
-    // When voice happper error dont make it thinking !!
     fun startListen() {
         Voice_Gif.isEnabled = false
 
         // start siri and remove robot focus change the gif animation //
-
-
         this.qiContext?.let { QiSDK.unregister(this, this) }
         mediaPlayerStart.start()
-        Voice_Gif.setImageResource(R.drawable.animation___1714146401968)
+        // TODO edit Manully
+        Voice_Gif.setImageResource(R.drawable.final_edited)
 
-        // here to start voice recording //
         captureAndTranscribe {
-            // make robot is think and reset the gif and start stop sound //
             mediaPlayerStop.start()
-            runOnUiThread {
-                Voice_Gif.setImageResource(R.drawable.anim)
-            }
-        }
 
+        }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             requestWindowFeature(Window.FEATURE_NO_TITLE)
 
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+        this.window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
 
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            //supportActionBar?.hide()
-
+        supportActionBar?.hide()
             setContentView(R.layout.activity_chat_screen)
             inactivityTimer = InactivityTimer(this, 420000)
 
@@ -137,17 +132,13 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             messageInput = findViewById(R.id.messageInput)
             sendButton = findViewById(R.id.sendButton)
 
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-
             Voice_Gif = findViewById(R.id.gifButton)
             Error_Gif = findViewById(R.id.ErrorGif)
 
             mediaPlayerStart = MediaPlayer.create(this, R.raw.siri_start)
             mediaPlayerStop  = MediaPlayer.create(this, R.raw.siri_stop)
 
-            toolbarTitle.text = getCategoryInfo(category as Category).name /* set navbar category */
-
-
+            toolbarTitle.text = padStringIfNeeded(getCategoryInfo(category as Category).name)
 
 
             /* setup Voice */
@@ -193,31 +184,35 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
             lifecycleScope.launch {
                 viewModel.state.collect { state ->
-
+                    runOnUiThread {
+                        Voice_Gif.setImageResource(R.drawable.pepper_listen_icon) // siri_voice
+                    }
                     if (state.display?.isNotEmpty() == true) {
                         Recorder.deleteRecordedFile()
+                        UpdateNode(IS_NOT_ROBOT)
                         messageList.add((IS_LAST_ITEM or IS_NOT_ROBOT) to state.display)
                         SviewModel.summarize(state.display)
                         MakeRobotThinking()
                     } else if (state.display?.isNotEmpty() == false) {
                         Init()
                         SviewModel.resetUiStateToInitial()
-                        Log.d("EXECPTION:", "FORWARDING EXPESION")
+                        Log.d("EXECPTION:", "IAM HERE TO RE INIT SCREEN!! ")
                     } else {
+                        Log.d("EXECPTION:", "HTTP ERROR!! ")
                         SetupErrorGif()
                     }
                 }
             }
     }
 
-
     private fun MakeRobotThinking() {
         PepperState = MAKE_THINKING
         SviewModel.setUiStateToLoading()
         this.qiContext?.let { QiSDK.register(this, this) }
     }
-    private  fun SetupErrorGif() {
 
+    private  fun SetupErrorGif() {
+        //chatLayout.removeAllViews()
         //chatLayout.visibility = View.GONE
         sendButton.visibility = View.GONE
         messageInput.visibility = View.GONE
@@ -253,15 +248,17 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     /* List Methods */
     private fun renderChatContent(newState: SummarizeUiState) {
         var IsSay = false
+        var UserLoading = false
         var state =
             when (newState) {
                 is SummarizeUiState.Initial -> {  false  }
                 is SummarizeUiState.Loading -> {  true   }
                 is SummarizeUiState.Success -> {
+                    Init()
                     UpdateNode(IS_ROBOT)
                     messageList.add((IS_ROBOT or IS_LAST_ITEM) to newState.outputText)
                     ToShortMessage = newState.outputText
-                    IsSay = true
+                    IsSay = false // updateded TODO
                     SviewModel.resetUiStateToInitial()
                     true
                 }
@@ -276,7 +273,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             if (!state) {
                 updateScreen()
             } else {
-                addMessage("", IS_IS_LOADING)
+                addMessage("", if (UserLoading) USER_LOADING else IS_IS_LOADING)
             }
             scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
         } else {
@@ -303,7 +300,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         val chatMessagesLayout = findViewById<LinearLayout>(R.id.chat_messages_layout)
         var messageBubbleLayout =
             if (flag and IS_NOT_ROBOT != 0) R.layout.user_chat_bubbles
-            else if (flag and IS_ROBOT != 0) R.layout.robot_chat_bubble else R.layout.robot_chat_generating
+            else if (flag and IS_ROBOT != 0) R.layout.robot_chat_bubble else { R.layout.robot_chat_generating  }
         val messageBubbleView = layoutInflater.inflate(messageBubbleLayout, null)
 
         if (flag and (IS_NOT_ROBOT or IS_ROBOT) != 0) {
@@ -330,7 +327,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             }
         }
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        layoutParams.gravity = if (flag and IS_NOT_ROBOT != 0) Gravity.END else Gravity.START
+        layoutParams.gravity = if (flag and IS_NOT_ROBOT != 0 || flag and USER_LOADING != 0) Gravity.END else Gravity.START
         messageBubbleView.layoutParams = layoutParams
 
         if (flag and (IS_ROBOT or IS_NOT_ROBOT) != 0) {
@@ -355,7 +352,15 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             }
         }
     }
-
+    private fun padStringIfNeeded(categoryName: String): String {
+        val maxSize = "Education and Learning".length
+        return if (categoryName.length < maxSize) {
+            val spacesToAdd = maxSize - categoryName.length
+            " ".repeat(spacesToAdd) + categoryName
+        } else {
+            categoryName
+        }
+    }
     private fun findLastIndexOfFlag(flag: Int): Int {
 
         for (i in messageList.indices.reversed()) {
@@ -387,6 +392,9 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             .replace(Regex("`{1,3}(.*?)`{1,3}"), "$1")
             .replace(Regex("\n"), " ")
     }
+
+
+
 
     /* Robot funcs */
 
@@ -458,6 +466,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         super.onUserInteraction()
         inactivityTimer.onUserInteraction()
     }
+
     override fun onDestroy() {
         inactivityTimer.stop()
         super.onDestroy()

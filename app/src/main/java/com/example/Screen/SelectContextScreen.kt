@@ -8,10 +8,7 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.Core.Category
 import com.example.Core.category
 import com.example.Utils.InactivityTimer
@@ -70,7 +67,6 @@ class SelectContextScreen : AppCompatActivity() {
         bookButton = findViewById(R.id.book_button)
         startChatButton = findViewById(R.id.start__chat_button)
         textView = findViewById(R.id.textView2)
-
 
         educationButton.setOnClickListener {
             category = Category.EDUCATION_AND_LEARNING

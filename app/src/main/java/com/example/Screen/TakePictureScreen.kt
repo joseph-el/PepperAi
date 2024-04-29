@@ -5,46 +5,30 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
 import com.example.empathymap.R
-
-import android.util.Log
-
 import android.widget.Button
 import android.widget.ImageView
-
 import com.aldebaran.qi.sdk.builder.TakePictureBuilder
 import com.aldebaran.qi.sdk.`object`.image.TimestampedImageHandle
-
 import com.aldebaran.qi.Future
-
-
-
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ScrollView
+import android.widget.TextView
 import android.widget.Toast
-
-
 import com.aldebaran.qi.sdk.Qi
 import com.aldebaran.qi.sdk.builder.AnimateBuilder
 import com.aldebaran.qi.sdk.builder.AnimationBuilder
-
 import com.aldebaran.qi.sdk.builder.SayBuilder
 import com.aldebaran.qi.sdk.`object`.actuation.Animate
 import com.aldebaran.qi.sdk.`object`.actuation.Animation
 import com.aldebaran.qi.sdk.`object`.camera.TakePicture
 import com.example.Utils.EmailSender
 import com.example.Utils.InactivityTimer
-
 import java.util.concurrent.TimeUnit
 
 private const val TAG = "TakePictureActivity"
@@ -60,6 +44,8 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     private lateinit var backButton: Button
     private lateinit var user_name: EditText
     private lateinit var user_mail: EditText
+    private lateinit var TextGuide: TextView
+
     private lateinit var retakePicturesImageView: ImageView
 
 
@@ -95,6 +81,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         user_mail = findViewById(R.id.userMail)
         pictureView = findViewById(R.id.imageView2)
         takePictureButton = findViewById(R.id.take_pic_button)
+        TextGuide = findViewById(R.id.Text_Guide)
 
         takePictureButton.setOnClickListener {
             DestroyAll()
@@ -215,17 +202,32 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             .withAnimation(animation_1)
             .build()
 
+        runOnUiThread {
+            TextGuide.text = "      Make Smile"
+        }
         say1.async().run()
         TimeUnit.SECONDS.sleep(2L)
+        runOnUiThread {
+            TextGuide.text = "               3"
+        }
         say2.async().run()
         TimeUnit.SECONDS.sleep(2L)
+        runOnUiThread {
+            TextGuide.text = "               2"
+        }
         say3.async().run()
         TimeUnit.SECONDS.sleep(2L)
+        runOnUiThread {
+            TextGuide.text = "               1"
+        }
         say4.async().run()
         TimeUnit.SECONDS.sleep(2L)
         animate_1.async().run()
         takePic()
         say5.async().run()
+        runOnUiThread {
+            TextGuide.text = "Click On Button\nTo Take Pictur"
+        }
     }
 
     override fun onRobotFocusLost() {

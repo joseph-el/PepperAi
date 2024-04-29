@@ -4,11 +4,9 @@ import android.content.Context
 import android.util.Log
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
 import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileOutputStream
-import android.os.FileUtils
 
 class EmailSender(private val context: Context) {
 

@@ -71,6 +71,11 @@ android {
 dependencies {
 
 
+    implementation 'com.revosleap.layout:blurrylayout:2.0.0'
+
+    def lottieVersion = "3.4.0"
+    implementation "com.airbnb.android:lottie:$lottieVersion"
+
     implementation 'com.github.Dimezis:BlurView:version-2.0.3'
 
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
@@ -79,14 +84,7 @@ dependencies {
     implementation 'com.sun.mail:android-mail:1.6.6'
     implementation 'com.sun.mail:android-activation:1.6.7'
 
-
-    // define any required OkHttp artifacts without version
-
-
-
     implementation 'com.assemblyai:assemblyai-java:1.1.1'
-
-   // implementation 'com.aghajari.waveanimation:AXWaveAnimation:1.0.0'
 
     implementation "com.aallam.openai:openai-client:3.7.1"
 
@@ -128,18 +126,11 @@ dependencies {
     implementation composeBom
     androidTestImplementation composeBom
 
-    // Choose one of the following:
-    // Material Design 3
-    implementation 'androidx.compose.material3:material3'
-    // or Material Design 2
-    implementation 'androidx.compose.material:material'
-    // or skip Material Design and build directly on top of foundational components
-    implementation 'androidx.compose.foundation:foundation'
-    // or only import the main APIs for the underlying toolkit systems,
-    // such as input and measurement/layout
-    implementation 'androidx.compose.ui:ui'
 
-    // Android Studio Preview support
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.material:material'
+    implementation 'androidx.compose.foundation:foundation'
+    implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.ui:ui-tooling-preview'
     debugImplementation 'androidx.compose.ui:ui-tooling'
 

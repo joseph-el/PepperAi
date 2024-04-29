@@ -2,7 +2,6 @@ package com.example.Utils
 
 import android.os.Handler
 import android.os.Looper
-
 import android.app.Activity
 import android.content.Intent
 import com.example.Screen.WelcomeScreen

@@ -13,13 +13,13 @@
 
         <com.mikhaellopez.circularimageview.CircularImageView
             android:id="@+id/image_view"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="0dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="0dp"
             android:layout_marginBottom="0dp"
-            android:src="@drawable/peppericonapp"
+            android:src="@drawable/pepper_logo"
             app:civ_border_color="@color/white"
             app:civ_border_width="0dp"
             app:civ_shadow="true"

@@ -1,9 +1,8 @@
 package com.example.Core
 
-import android.util.Log
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-
 import com.example.configManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,30 +19,6 @@ import org.json.JSONObject
 import java.io.IOException
 
 var category: Category? = null
-
-/*
-
-    val apiKey = "your_openai_api_key"
-    val file = File("/path/to/file/audio.mp3")
-    val url = "https://api.openai.com/v1/audio/transcriptions"
-
-    val client = OkHttpClient()
-
-    val requestBody = MultipartBody.Builder()
-        .setType(MultipartBody.FORM)
-        .addFormDataPart("file", "audio.mp3", file.asRequestBody("audio/mp3".toMediaType()))
-        .addFormDataPart("timestamp_granularities[]", "word")
-        .addFormDataPart("model", "whisper-1")
-        .addFormDataPart("response_format", "verbose_json")
-        .build()
-
-    val request = Request.Builder()
-        .url(url)
-        .addHeader("Authorization", "Bearer $apiKey")
-        .post(requestBody)
-        .build()
-
- */
 
 class Artificial_intelligence_model() : ViewModel() {
 
@@ -103,7 +78,6 @@ class Artificial_intelligence_model() : ViewModel() {
                             } catch (e:Exception) {
                                 _uiState.value = SummarizeUiState.Error("${e.localizedMessage}")
                             }
-
                         }
                     })
                 }   catch (e: Exception) {

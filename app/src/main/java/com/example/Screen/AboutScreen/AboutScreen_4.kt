@@ -6,12 +6,7 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
@@ -20,13 +15,8 @@ import com.aldebaran.qi.sdk.builder.AnimationBuilder
 import com.aldebaran.qi.sdk.builder.SayBuilder
 import com.aldebaran.qi.sdk.`object`.actuation.Animate
 import com.aldebaran.qi.sdk.`object`.actuation.Animation
-import com.example.Screen.HomeScreen
-import com.example.Screen.SelectContextScreen
-import com.example.Screen.TakePictureScreen
-import com.example.Screen.WelcomeScreen
 import com.example.Utils.InactivityTimer
 import com.example.empathymap.R
-import com.example.empathymap.databinding.ActivityAboutScreen4Binding
 
 class AboutScreen_4 : AppCompatActivity(), RobotLifecycleCallbacks {
 

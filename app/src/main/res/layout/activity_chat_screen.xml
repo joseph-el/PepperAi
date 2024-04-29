@@ -8,63 +8,68 @@
     tools:context="com.example.Screen.ChatScreen">
 
 
+    <!-- Navigation Bar -->
 
-    <!-- Navigation Bar
-         <ImageView
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/pattern_32" />
+        android:src="@drawable/group3" />
 
-     -->
-
-
-
-        <!--Any child View here, TabLayout for example. This View will NOT be blurred -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <com.revosleap.blurrylayout.BlurryLayout
+        android:id="@+id/bluredLayout"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#1C1C1D"
+        android:layout_height="45dp"
+        app:blurColor="@color/black"
+        app:blurImage="@drawable/imessagedark"
+        app:blurOpacity=".7"
+        app:blurRadius="5">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
         <ImageButton
             android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:src="@drawable/vector"
-            android:paddingEnd="360dp"
+            android:src="@drawable/leading"
+            android:paddingEnd="300dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-
-        <TextView
-            android:id="@+id/toolbarTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:fontFamily="@font/plus_2"
-            android:text="Education"
-            android:textSize="25sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.appcompat.widget.Toolbar>
+            <TextView
+                android:id="@+id/toolbarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/plus_2"
+                android:text=""
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.appcompat.widget.Toolbar>
+    </com.revosleap.blurrylayout.BlurryLayout>
 
     <View android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_below="@id/toolbar"
+        android:layout_height="1dp"
+        android:layout_below="@id/bluredLayout"
         android:background="#41FFFFFF" />
+
+
+    <!-- Content Bar -->
 
     <ScrollView
         android:id="@+id/chat_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/sendBar"
-        android:layout_below="@id/toolbar"
+        android:layout_below="@id/bluredLayout"
         android:fillViewport="true">
 
         <LinearLayout
@@ -74,15 +79,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-
-            <pl.droidsonroids.gif.GifImageView
-                android:id="@+id/ErrorGif"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/speech_bar_voice_animation"
-                />
-
             <include layout="@layout/user_chat_bubbles" />
             <include layout="@layout/robot_chat_bubble" />
             <include layout="@layout/robot_chat_bubble" />
@@ -91,13 +87,18 @@
             <include layout="@layout/robot_chat_bubble" />
             <include layout="@layout/robot_chat_bubble" />
 
+            <pl.droidsonroids.gif.GifImageView
+                android:id="@+id/ErrorGif"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/error_gif"
+                />
 
             <!-- Here when i add the compoent of userchat bubbles -->
         </LinearLayout>
 
     </ScrollView>
-
-
 
     <LinearLayout
         android:id="@+id/sendBar"
@@ -107,14 +108,14 @@
         android:orientation="horizontal"
         android:padding="0dp">
 
+
         <pl.droidsonroids.gif.GifImageView
             android:id="@+id/gifButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="visible"
-            android:src="@drawable/anim"
+            android:src="@drawable/pepper_listen_icon"
             />
-
 
         <EditText
             android:id="@+id/messageInput"
@@ -142,8 +143,6 @@
 
 
     </LinearLayout>
-
-
 
 
 </RelativeLayout>

@@ -6,10 +6,7 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.aldebaran.qi.sdk.QiContext
 import com.aldebaran.qi.sdk.QiSDK
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks
@@ -19,8 +16,6 @@ import com.aldebaran.qi.sdk.builder.SayBuilder
 import com.aldebaran.qi.sdk.`object`.actuation.Animate
 import com.aldebaran.qi.sdk.`object`.actuation.Animation
 import com.example.Screen.HomeScreen
-import com.example.Screen.SelectContextScreen
-import com.example.Screen.TakePictureScreen
 import com.example.Utils.InactivityTimer
 import com.example.empathymap.R
 
