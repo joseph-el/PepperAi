@@ -61,7 +61,6 @@
         android:layout_below="@id/bluredLayout"
         android:background="#41FFFFFF" />
 
-
     <!-- Content Bar -->
 
     <ScrollView
@@ -79,6 +78,9 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+
+
+            <!--
             <include layout="@layout/user_chat_bubbles" />
             <include layout="@layout/robot_chat_bubble" />
             <include layout="@layout/robot_chat_bubble" />
@@ -86,19 +88,15 @@
             <include layout="@layout/robot_chat_bubble" />
             <include layout="@layout/robot_chat_bubble" />
             <include layout="@layout/robot_chat_bubble" />
+-->
 
-            <pl.droidsonroids.gif.GifImageView
-                android:id="@+id/ErrorGif"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/error_gif"
-                />
 
             <!-- Here when i add the compoent of userchat bubbles -->
         </LinearLayout>
 
     </ScrollView>
+
+    <!-- Buttom bar -->
 
     <LinearLayout
         android:id="@+id/sendBar"
@@ -122,10 +120,11 @@
             android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:visibility="gone"
-            android:layout_weight="17"
+            android:layout_marginLeft="20dp"
+            android:layout_weight="50"
             android:background="@drawable/ios_text_send_background"
             android:paddingVertical="12dp"
-            android:paddingHorizontal="20dp"
+            android:paddingHorizontal="33dp"
             android:textColor="@color/black"
             android:textSize="16sp"
             android:layout_marginRight="10dp"
@@ -134,12 +133,13 @@
 
         <ImageButton
             android:id="@+id/sendButton"
-            android:visibility="gone"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:background="@null"
-            android:src="@drawable/sendicon" />
+            android:paddingLeft="0dp"
+            android:src="@drawable/send_icon_svg_final"
+            android:visibility="gone" />
 
 
     </LinearLayout>
@@ -147,13 +147,3 @@
 
 </RelativeLayout>
 
-<!--
-     <ImageButton
-            android:id="@+id/voiceButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginRight="10dp"
-            android:layout_weight="1"
-            android:background="@null"
-            android:src="@drawable/voiceicon" />
--->

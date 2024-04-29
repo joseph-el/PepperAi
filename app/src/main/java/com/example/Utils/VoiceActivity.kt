@@ -75,6 +75,7 @@ class VoiceRecorder(private val outputDir: File) {
 
     fun deleteRecordedFile() {
         outputFile?.delete()
+        outputFile = null
     }
 
     fun processAudioLevel(audioLevel: Int) {

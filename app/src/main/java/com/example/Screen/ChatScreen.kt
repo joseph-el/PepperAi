@@ -51,7 +51,6 @@ import kotlinx.coroutines.launch
 import pl.droidsonroids.gif.GifImageView
 import java.io.File
 
-
 val IS_ROBOT: Int = (1 shl 0)
 val IS_LAST_ITEM: Int = (1 shl 1)
 val IS_NOT_ROBOT: Int = (1 shl 2)
@@ -63,7 +62,6 @@ val MAKE_ROBOT_SAY: Int    = (1 shl 5)
 val MAKE_THINKING: Int     = (1 shl 6)
 val MAKE_ROBOT_SAD: Int = (1 shl 7)
 
-
 class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
     private lateinit var inactivityTimer: InactivityTimer
@@ -73,8 +71,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     private lateinit var sendButton: ImageButton
     private lateinit var Back_button: ImageButton
     private lateinit var Voice_Gif: GifImageView
-    private lateinit var Error_Gif: GifImageView
-
+    private lateinit var ImageButtonError: ImageButton
 
     private lateinit var toolbarTitle: TextView
     private val SviewModel: Artificial_intelligence_model by viewModels()
@@ -92,16 +89,11 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
     fun startListen() {
         Voice_Gif.isEnabled = false
-
-        // start siri and remove robot focus change the gif animation //
         this.qiContext?.let { QiSDK.unregister(this, this) }
         mediaPlayerStart.start()
-        // TODO edit Manully
         Voice_Gif.setImageResource(R.drawable.final_edited)
-
         captureAndTranscribe {
             mediaPlayerStop.start()
-
         }
     }
 
@@ -119,7 +111,6 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
-
         supportActionBar?.hide()
             setContentView(R.layout.activity_chat_screen)
             inactivityTimer = InactivityTimer(this, 420000)
@@ -131,14 +122,14 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             scrollView = findViewById(R.id.chat_layout)
             messageInput = findViewById(R.id.messageInput)
             sendButton = findViewById(R.id.sendButton)
-
             Voice_Gif = findViewById(R.id.gifButton)
-            Error_Gif = findViewById(R.id.ErrorGif)
+
 
             mediaPlayerStart = MediaPlayer.create(this, R.raw.siri_start)
             mediaPlayerStop  = MediaPlayer.create(this, R.raw.siri_stop)
 
             toolbarTitle.text = padStringIfNeeded(getCategoryInfo(category as Category).name)
+
 
 
             /* setup Voice */
@@ -184,9 +175,9 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
             lifecycleScope.launch {
                 viewModel.state.collect { state ->
-                    runOnUiThread {
-                        Voice_Gif.setImageResource(R.drawable.pepper_listen_icon) // siri_voice
-                    }
+
+                    Voice_Gif.setImageResource(R.drawable.pepper_listen_icon) // siri_voice
+
                     if (state.display?.isNotEmpty() == true) {
                         Recorder.deleteRecordedFile()
                         UpdateNode(IS_NOT_ROBOT)
@@ -203,6 +194,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
                     }
                 }
             }
+
     }
 
     private fun MakeRobotThinking() {
@@ -212,19 +204,30 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     }
 
     private  fun SetupErrorGif() {
-        //chatLayout.removeAllViews()
-        //chatLayout.visibility = View.GONE
+
+        chatLayout.removeAllViews()
+
+        ImageButtonError = ImageButton(this)
+        ImageButtonError.id = View.generateViewId()
+        ImageButtonError.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+
+        ImageButtonError.setImageResource(R.drawable.error_robot_failed)
+        chatLayout.addView(ImageButtonError)
+
         sendButton.visibility = View.GONE
         messageInput.visibility = View.GONE
         Voice_Gif.visibility = View.GONE
-        Error_Gif.visibility = View.VISIBLE
+
         scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
         PepperState = MAKE_ROBOT_SAD
         this.qiContext?.let { QiSDK.register(this, this) }
 
-        Error_Gif.setOnClickListener {
+        ImageButtonError.setOnClickListener {
             Voice_Gif.visibility = View.VISIBLE
-            Error_Gif.visibility = View.GONE
+            ImageButtonError.visibility = View.GONE
             updateScreen()
             Init()
         }
@@ -336,7 +339,6 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         }
         chatMessagesLayout.addView(messageBubbleView)
     }
-
     private fun UpdateNode(flag: Int) {
         if (messageList.isNotEmpty()) {
             var lastItemIndex = -1
@@ -371,7 +373,6 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         }
         return -1
     }
-
     private fun removeLastAddedNodes(RemoveTwo: Boolean) {
         val lastIndex = messageList.size - 1
         if (lastIndex >= 0) {
@@ -383,7 +384,6 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             messageList.removeAt(secondLastIndex)
         }
     }
-
     private fun markdownToPlainText(markdown: String): String {
         return markdown
             .replace(Regex("\\*\\*(.*?)\\*\\*"), "$1")
