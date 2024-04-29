@@ -4,21 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/teal_200"
+    android:background="@color/black"
     tools:context="com.example.Screen.ChatScreen">
 
-    <ImageView
+
+
+    <!-- Navigation Bar
+         <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:src="@drawable/pattern_32" />
 
-    <!-- Navigation Bar -->
+     -->
+
+
+
+        <!--Any child View here, TabLayout for example. This View will NOT be blurred -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/teal_200"
+        android:layout_height="50dp"
+        android:background="#1C1C1D"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
@@ -33,44 +40,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.mikhaellopez.circularimageview.CircularImageView
-            android:id="@+id/image_view_logo"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="0dp"
-            android:layout_marginEnd="0dp"
-            android:layout_marginBottom="0dp"
-            android:src="@drawable/pepper_logo"
-            app:civ_border_color="@color/white"
-            app:civ_border_width="0dp"
-            app:civ_shadow="true"
-            app:civ_shadow_radius="0dp"
-            app:civ_shadow_color="@color/black" />
 
         <TextView
             android:id="@+id/toolbarTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:fontFamily="@font/poppins_semibold"
-            android:text="Healty"
-            android:textSize="20sp"
-            app:layout_constraintStart_toEndOf="@id/image_view_logo"
+            android:fontFamily="@font/plus_2"
+            android:text="Education"
+            android:textSize="25sp"
+            android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.appcompat.widget.Toolbar>
 
-    <View
-        android:layout_width="match_parent"
+    <View android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_below="@id/toolbar"
         android:background="#41FFFFFF" />
 
-
-    <!--
-        TODO: add GIF Error
-    -->
     <ScrollView
         android:id="@+id/chat_layout"
         android:layout_width="match_parent"
@@ -86,15 +74,22 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+
             <pl.droidsonroids.gif.GifImageView
                 android:id="@+id/ErrorGif"
                 android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/anim"
+                android:src="@drawable/speech_bar_voice_animation"
                 />
 
             <include layout="@layout/user_chat_bubbles" />
+            <include layout="@layout/robot_chat_bubble" />
+            <include layout="@layout/robot_chat_bubble" />
+            <include layout="@layout/robot_chat_bubble" />
+            <include layout="@layout/robot_chat_bubble" />
+            <include layout="@layout/robot_chat_bubble" />
+            <include layout="@layout/robot_chat_bubble" />
 
 
             <!-- Here when i add the compoent of userchat bubbles -->
@@ -107,18 +102,19 @@
     <LinearLayout
         android:id="@+id/sendBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="120dp"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:padding="16dp">
-
+        android:padding="0dp">
 
         <pl.droidsonroids.gif.GifImageView
             android:id="@+id/gifButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="visible"
             android:src="@drawable/anim"
             />
+
 
         <EditText
             android:id="@+id/messageInput"

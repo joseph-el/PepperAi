@@ -2,6 +2,7 @@ package com.example.Screen
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.example.empathymap.R
@@ -91,6 +92,7 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
                 }
             } catch (e: Exception) {  }
         } else {
+            Log.d("pepper_state:", "No human founded!!")
             refocusIfTimeout()
         }
     }

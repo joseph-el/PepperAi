@@ -1,63 +1,45 @@
 package com.example.Utils
 
 import android.content.Context
+import android.util.Log
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
+import android.os.FileUtils
 
+class EmailSender(private val context: Context) {
 
-class EmailHelper(private val context: Context) {
+    private var isEmailSent = false
 
-    private val TAG = "EmailHelper"
+    fun sendEmailWithBitmap(image: Bitmap, emailAddress: String, subject: String, body: String) {
+        val fileName = "image_${System.currentTimeMillis()}.jpg"
+        val file = File(context.cacheDir, fileName)
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
 
-    fun sendEmailWithImage(email: String, subject: String, body: String, bitmap: Bitmap) {
-        val uri = saveBitmapToFile(bitmap)
-
-        val emailIntent = android.content.Intent(android.content.Intent.ACTION_SEND)
-        emailIntent.type = "image/*"
-        emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf(email))
-        emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject)
-        emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, body)
-        emailIntent.putExtra(android.content.Intent.EXTRA_STREAM, uri)
-
-        emailIntent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
         try {
-            deleteTemporaryFile(uri)
-            context.startActivity(android.content.Intent.createChooser(emailIntent, "Send email..."))
-        } catch (ex: android.content.ActivityNotFoundException) {
-            Log.e(TAG, "No email clients installed.")
-        }
-    }
-
-    private fun saveBitmapToFile(bitmap: Bitmap): Uri {
-        val file = File(context.cacheDir, "image.jpg")
-        try {
-            val outputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-            outputStream.flush()
-            outputStream.close()
-        } catch (e: IOException) {
-            Log.e(TAG, "Error saving bitmap to file: ${e.message}")
-        }
-        return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-    }
-
-    private fun deleteTemporaryFile(uri: Uri) {
-        try {
-            val fileToDelete = File(uri.path)
-            if (fileToDelete.exists()) {
-                fileToDelete.delete()
+            FileOutputStream(file).use { out ->
+                image.compress(Bitmap.CompressFormat.JPEG, 100, out)
             }
+
+            val emailIntent = Intent(Intent.ACTION_SEND).apply {
+                putExtra(Intent.EXTRA_EMAIL, arrayOf(emailAddress))
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, body)
+                putExtra(Intent.EXTRA_STREAM, uri)
+                type = "image/jpeg"
+            }
+            context.startActivity(Intent.createChooser(emailIntent, "Send email"))
+            isEmailSent = true
         } catch (e: Exception) {
-            Log.e(TAG, "Error deleting temporary file: ${e.message}")
+            Log.d("mailSender:", "exp ${e.localizedMessage}" )
+            isEmailSent = false
+            e.printStackTrace()
         }
+    }
+    fun isEmailSentSuccessfully(): Boolean {
+        return isEmailSent
     }
 }
-
-
-
-

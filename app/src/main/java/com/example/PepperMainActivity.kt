@@ -4,35 +4,17 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
-import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat
 import com.example.Core.ConfigManager
-import com.example.Core.SummarizeUiState
-import com.example.Screen.ChatScreen
 import com.example.Screen.SelectContextScreen
-import com.example.Screen.WelcomeScreen
 import com.example.empathymap.R
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody.Companion.toRequestBody
-import pl.droidsonroids.gif.GifImageButton
-import pl.droidsonroids.gif.GifImageView
-import java.io.IOException
-
-
-
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 
 lateinit var configManager: ConfigManager
 
@@ -40,9 +22,7 @@ class PepperMainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-
             super.onCreate(savedInstanceState)
-
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             this.window.setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -58,31 +38,40 @@ class PepperMainActivity : AppCompatActivity() {
             supportActionBar?.hide()
             setContentView(R.layout.activity_pepper_main)
 
+            launchPermissionRequest()
             configManager = ConfigManager("config.json")
             if (configManager.isFileFound()) {
-                // Handel Error
                 Handler().postDelayed({
                     val intent = Intent(this, SelectContextScreen::class.java)
                     startActivity(intent)
                 }, 3000)
             }else {
-                Log.d("config_file", ": not found by sucsses")
+                Toast.makeText(this, "PepperAi: Failed To Load Config.json", Toast.LENGTH_LONG).show()
             }
-                    /*      Example of config:
-                            {
-                              "ip-address": "10.32.80.93",
-                              "port":"3000",
-                              "url": "/api/v1/prediction/64439968-436e-4ad5-9b39-c1b3f016b977"
-                              "transcribe-port": "5000"
-                              "transcribe-url": "/transcribe"
-                            }
-                     */
-
-
-
         }
+    private fun launchPermissionRequest() {
+        var recordPermission: Boolean = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        var storagePermission: Boolean = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
 
+        val launcher_1 = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> recordPermission = granted }
+        val launcher_2 = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> storagePermission = granted }
+
+        if (!recordPermission)  launcher_1.launch(Manifest.permission.RECORD_AUDIO)
+        if (!storagePermission) launcher_2.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    }
 }
+
+/*
+Example of config.json:
+        {
+          "ip-address": "10.32.80.93",
+          "port":"3000",
+          "url": "/api/v1/prediction/64439968-436e-4ad5-9b39-c1b3f016b977"
+          "transcribe-port": "5000"
+          "transcribe-url": "/transcribe"
+        }
+ */
+
 
 
 

@@ -42,6 +42,7 @@ import com.aldebaran.qi.sdk.builder.SayBuilder
 import com.aldebaran.qi.sdk.`object`.actuation.Animate
 import com.aldebaran.qi.sdk.`object`.actuation.Animation
 import com.aldebaran.qi.sdk.`object`.camera.TakePicture
+import com.example.Utils.EmailSender
 import com.example.Utils.InactivityTimer
 
 import java.util.concurrent.TimeUnit
@@ -120,17 +121,17 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
                     Toast.makeText(this, "PepperAi: You Need To Take Pictures First", Toast.LENGTH_LONG).show()
                 } else {
                     try {
+                        var EmailManager = EmailSender(this)
+                        EmailManager.sendEmailWithBitmap(pictureBitmap!!,mail, "pepper-robot-pictures", "Hey ${name}\nIam pepper you remember me right! \n Here the picture that i take for you: " )
 
-                        /*
-                        var EmailManager = EmailHelper(this)
-                        pictureBitmap?.let { it1 ->
-                            EmailManager.sendEmailWithImage(mail, name, "Pepper pictures: ",
-                                it1
-                            )
-                        }
-                         */
                         DestroyAll()
-                        Toast.makeText(this, "PepperAi: Pictures send by success!", Toast.LENGTH_LONG).show()
+                        if (EmailManager.isEmailSentSuccessfully()) {
+                            // TODO remove pic
+                            Toast.makeText(this, "PepperAi: Picture send by success!", Toast.LENGTH_LONG).show()
+                        }
+                        else
+                            Toast.makeText(this, "PepperAi: Failed to send Picture", Toast.LENGTH_LONG).show()
+
                     } catch (e: Exception) {
                         Toast.makeText(this, "PepperAi: ${e.message}", Toast.LENGTH_LONG).show()
                     }

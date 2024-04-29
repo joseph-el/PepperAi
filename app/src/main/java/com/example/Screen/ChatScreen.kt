@@ -10,7 +10,9 @@ import android.os.Environment
 import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.Window
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
@@ -49,6 +51,8 @@ import com.example.empathymap.R
 import com.example.Core.Category
 import com.example.Core.VoiceRecorder
 import com.example.Core.category
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderScriptBlur
 import kotlinx.coroutines.launch
 import pl.droidsonroids.gif.GifImageView
 import java.io.File
@@ -91,19 +95,12 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     private lateinit var mediaPlayerStop: MediaPlayer
 
 
-    // Make robot focus on HeyPepper or click on button
-    // When one happen start recording until user stop
-    // Generating message by AI
-    // Display result and make it say it
-    // when error removeAllView and display gif
-    // re init pepper to listen on "hey pepper"
-    //think X 2 3
-
-    //
+    // When voice happper error dont make it thinking !!
     fun startListen() {
         Voice_Gif.isEnabled = false
 
         // start siri and remove robot focus change the gif animation //
+
 
         this.qiContext?.let { QiSDK.unregister(this, this) }
         mediaPlayerStart.start()
@@ -116,8 +113,6 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             runOnUiThread {
                 Voice_Gif.setImageResource(R.drawable.anim)
             }
-            PepperState = MAKE_THINKING
-            this.qiContext?.let { QiSDK.register(this, this) }
         }
 
     }
@@ -125,8 +120,12 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             super.onCreate(savedInstanceState)
             requestWindowFeature(Window.FEATURE_NO_TITLE)
 
-            launchPermissionRequest()
-            supportActionBar?.hide()
+
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            //supportActionBar?.hide()
+
             setContentView(R.layout.activity_chat_screen)
             inactivityTimer = InactivityTimer(this, 420000)
 
@@ -137,6 +136,9 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             scrollView = findViewById(R.id.chat_layout)
             messageInput = findViewById(R.id.messageInput)
             sendButton = findViewById(R.id.sendButton)
+
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+
             Voice_Gif = findViewById(R.id.gifButton)
             Error_Gif = findViewById(R.id.ErrorGif)
 
@@ -144,6 +146,9 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             mediaPlayerStop  = MediaPlayer.create(this, R.raw.siri_stop)
 
             toolbarTitle.text = getCategoryInfo(category as Category).name /* set navbar category */
+
+
+
 
             /* setup Voice */
             outputDir = File(Environment.getExternalStorageDirectory(), "recordings")
@@ -193,9 +198,10 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
                         Recorder.deleteRecordedFile()
                         messageList.add((IS_LAST_ITEM or IS_NOT_ROBOT) to state.display)
                         SviewModel.summarize(state.display)
-                        SviewModel.resetUiStateToInitial()
+                        MakeRobotThinking()
                     } else if (state.display?.isNotEmpty() == false) {
                         Init()
+                        SviewModel.resetUiStateToInitial()
                         Log.d("EXECPTION:", "FORWARDING EXPESION")
                     } else {
                         SetupErrorGif()
@@ -204,13 +210,20 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             }
     }
 
+
+    private fun MakeRobotThinking() {
+        PepperState = MAKE_THINKING
+        SviewModel.setUiStateToLoading()
+        this.qiContext?.let { QiSDK.register(this, this) }
+    }
     private  fun SetupErrorGif() {
-        chatLayout.removeAllViews()
+
+        //chatLayout.visibility = View.GONE
         sendButton.visibility = View.GONE
         messageInput.visibility = View.GONE
         Voice_Gif.visibility = View.GONE
         Error_Gif.visibility = View.VISIBLE
-
+        scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
         PepperState = MAKE_ROBOT_SAD
         this.qiContext?.let { QiSDK.register(this, this) }
 
@@ -254,6 +267,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
                 }
                 is SummarizeUiState.Error -> {
                     SetupErrorGif()
+                    Log.d("EXECPTION:", "exec: ${newState.errorMessage}")
                     SviewModel.resetUiStateToInitial()
                     false
                 }
@@ -374,18 +388,6 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             .replace(Regex("\n"), " ")
     }
 
-    private fun launchPermissionRequest() {
-        var recordPermission: Boolean = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-        var storagePermission: Boolean = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-
-        val launcher_1 = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> recordPermission = granted }
-        val launcher_2 = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> storagePermission = granted }
-
-        if (!recordPermission)  launcher_1.launch(Manifest.permission.RECORD_AUDIO)
-        if (!storagePermission) launcher_2.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-    }
-
-
     /* Robot funcs */
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
@@ -431,7 +433,8 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             animate_5.async().run()
             TheStringToSay.async().run()
             PepperState = 0
-        } else if (PepperState == MAKE_ROBOT_SAD) {
+        }
+        else if (PepperState == MAKE_ROBOT_SAD) {
             val ret = "Oooooh !"
             val TheStringToSay = SayBuilder.with(qiContext)
                 .withText(ret)

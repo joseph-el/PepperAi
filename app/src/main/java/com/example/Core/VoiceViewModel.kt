@@ -62,6 +62,7 @@ class AppViewModel(private val stt: VoiceRecorder) : ViewModel() {
                             try {
                                 throw IOException("Request failed: ${e.localizedMessage}")
                             } catch (e: Exception) {
+                                Log.d("EXECPTION:", " in ${e.localizedMessage}")
                                 _state.value = _state.value.copy(
                                     display = null
                                 )

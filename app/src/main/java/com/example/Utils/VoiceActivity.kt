@@ -13,7 +13,7 @@ class VoiceRecorder(private val outputDir: File) {
     var isRecording = false
     var onRecordingFinishedListener: (() -> Unit)? = null
 
-    private val MIN_SILENCE_DURATION_MS = 3200 // LAST 1200
+    private val MIN_SILENCE_DURATION_MS = 2200 // LAST 1200
     private val SILENCE_THRESHOLD_DB = 0
     private var lastSilenceTime: Long = 0
 
