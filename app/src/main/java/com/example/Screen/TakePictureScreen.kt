@@ -127,6 +127,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         }
     }
     private fun DestroyAll() {
+        TextGuide.text = "Click On Button\nTo Take Picture"
         if (qiContext == null) {
             return
         }
@@ -193,7 +194,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             .build()
 
         val say5 = SayBuilder.with(qiContext)
-            .withText("Yeaaaah i take it! Amazing ")
+            .withText("Yeaaaah i take it! its Amazing ")
             .build()
 
         val animation_1: Animation = AnimationBuilder.with(qiContext)
@@ -226,7 +227,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         takePic()
         say5.async().run()
         runOnUiThread {
-            TextGuide.text = "Click On Button\nTo Take Pictur"
+            TextGuide.text = ""
         }
     }
 

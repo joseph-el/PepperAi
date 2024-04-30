@@ -17,12 +17,17 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 var category: Category? = null
 
 class Artificial_intelligence_model() : ViewModel() {
 
-    private val client = OkHttpClient()
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
 
     private val _uiState = MutableStateFlow<SummarizeUiState>(SummarizeUiState.Initial)
     val uiState: StateFlow<SummarizeUiState> = _uiState.asStateFlow()

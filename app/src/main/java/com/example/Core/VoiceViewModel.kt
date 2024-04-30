@@ -18,15 +18,19 @@ import okhttp3.Response
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class AppViewModel(private val stt: VoiceRecorder) : ViewModel() {
     private var _state = MutableStateFlow(AppState())
-    private var client = OkHttpClient()
+    private var client = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
     val state = _state.asStateFlow()
 
     fun send(action: AppAction) {
         when (action) {
-
             AppAction.StartRecord -> {
                 stt.startRecording()
             }

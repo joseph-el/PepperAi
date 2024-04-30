@@ -1,6 +1,6 @@
 package com.example.Screen
 
-import android.content.Context
+import  android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -71,7 +71,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     private lateinit var sendButton: ImageButton
     private lateinit var Back_button: ImageButton
     private lateinit var Voice_Gif: GifImageView
-    private lateinit var ImageButtonError: ImageButton
+    private lateinit var ImageButtonError: ImageView
 
     private lateinit var toolbarTitle: TextView
     private val SviewModel: Artificial_intelligence_model by viewModels()
@@ -123,13 +123,9 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             messageInput = findViewById(R.id.messageInput)
             sendButton = findViewById(R.id.sendButton)
             Voice_Gif = findViewById(R.id.gifButton)
-
-
             mediaPlayerStart = MediaPlayer.create(this, R.raw.siri_start)
             mediaPlayerStop  = MediaPlayer.create(this, R.raw.siri_stop)
-
             toolbarTitle.text = padStringIfNeeded(getCategoryInfo(category as Category).name)
-
 
 
             /* setup Voice */
@@ -137,7 +133,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             Recorder = VoiceRecorder(outputDir)
             viewModel = AppViewModel(Recorder)
 
-            QiSDK.register(this, this) /*make robot focus on first lunch*/
+            QiSDK.register(this, this) /* make robot focus on first lunch */
 
             Voice_Gif.setOnClickListener {
                 startListen()
@@ -175,11 +171,9 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
             lifecycleScope.launch {
                 viewModel.state.collect { state ->
-
                     Voice_Gif.setImageResource(R.drawable.pepper_listen_icon) // siri_voice
-
+                    Recorder.deleteRecordedFile()
                     if (state.display?.isNotEmpty() == true) {
-                        Recorder.deleteRecordedFile()
                         UpdateNode(IS_NOT_ROBOT)
                         messageList.add((IS_LAST_ITEM or IS_NOT_ROBOT) to state.display)
                         SviewModel.summarize(state.display)
@@ -207,24 +201,22 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
         chatLayout.removeAllViews()
 
-        ImageButtonError = ImageButton(this)
+        ImageButtonError = ImageView(this)
         ImageButtonError.id = View.generateViewId()
-        ImageButtonError.layoutParams = LinearLayout.LayoutParams(
+        val params = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
-
+        params.setMargins(370, 37, 0, 0) // left, top, right, bottom
+        ImageButtonError.layoutParams = params
         ImageButtonError.setImageResource(R.drawable.error_robot_failed)
         chatLayout.addView(ImageButtonError)
-
         sendButton.visibility = View.GONE
         messageInput.visibility = View.GONE
         Voice_Gif.visibility = View.GONE
-
         scrollView.post { scrollView.fullScroll(ScrollView.FOCUS_DOWN) }
         PepperState = MAKE_ROBOT_SAD
         this.qiContext?.let { QiSDK.register(this, this) }
-
         ImageButtonError.setOnClickListener {
             Voice_Gif.visibility = View.VISIBLE
             ImageButtonError.visibility = View.GONE
@@ -261,7 +253,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
                     UpdateNode(IS_ROBOT)
                     messageList.add((IS_ROBOT or IS_LAST_ITEM) to newState.outputText)
                     ToShortMessage = newState.outputText
-                    IsSay = false // updateded TODO
+                    IsSay = true // updateded TODO
                     SviewModel.resetUiStateToInitial()
                     true
                 }
@@ -394,8 +386,6 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     }
 
 
-
-
     /* Robot funcs */
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
@@ -421,7 +411,9 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
             val listenResult: ListenResult = listen.run()
 
-            if  (listenResult.heardPhrase.text.toLowerCase() == "hello"){
+            Log.d("pepper:", " listen word: ${listenResult.heardPhrase.text}")
+
+            if  (listenResult.heardPhrase.text.toLowerCase() == "Hey Pepper"){
                 runOnUiThread {
                     startListen()
                 }
@@ -429,7 +421,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             PepperState = 0
         } else if (PepperState == MAKE_THINKING) {
             // this not Perfect good to use media
-            val ret = "let me think !"
+            val ret = "on it"
             val TheStringToSay = SayBuilder.with(qiContext)
                 .withText(ret)
                 .build()

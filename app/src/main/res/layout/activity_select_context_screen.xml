@@ -121,7 +121,7 @@
         android:layout_marginStart="284dp"
         android:layout_marginBottom="44dp"
         android:fontFamily="@font/poppins_semibold"
-        android:text="Education and Learning"
+        android:text=""
         android:textColor="#D5CECE"
         android:textSize="20sp"
         android:textStyle="bold"

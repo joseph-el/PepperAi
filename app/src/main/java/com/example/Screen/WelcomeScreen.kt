@@ -101,6 +101,9 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
                     timeoutOccurred = false
                     lastDetectedTime = System.currentTimeMillis()
                     PepperTalkWithDetectedHumans(humansAround)
+                }else {
+                    Log.d("pepper_state:", "No inside the humansAroundFuture ")
+                    refocusIfTimeout()
                 }
             } catch (e: Exception) {  }
         } else {
@@ -116,10 +119,10 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
 
     private fun PepperTalkWithDetectedHumans(humans: List<Human>) {
         val TalkWithHuman = SayBuilder.with(qiContext)
-            .withText("Heey comme to talk with me !!")
+            .withText("Hey there! Want to have a friendly chat?")
             .build()
         val TalkWithMoreThanHuman = SayBuilder.with(qiContext)
-            .withText("Hello Pepople iam alone can someone Talk to me ?")
+            .withText("Hello folks! I'm feeling chatty. Who's up for a conversation?")
             .build()
 
         // TODO (Change the animation)
