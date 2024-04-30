@@ -8,7 +8,6 @@ import android.os.Environment
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
@@ -75,7 +74,6 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
     private lateinit var toolbarTitle: TextView
     private val SviewModel: Artificial_intelligence_model by viewModels()
-    private var messageList = mutableListOf<Pair<Int, String>>()
     private var EditMessageState by mutableStateOf(false)
     private var qiContext: QiContext? = null
     var ToShortMessage: String = ""
@@ -207,7 +205,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
-        params.setMargins(370, 37, 0, 0) // left, top, right, bottom
+        params.setMargins(370, 50, 0, 0) // left, top, right, bottom
         ImageButtonError.layoutParams = params
         ImageButtonError.setImageResource(R.drawable.error_robot_failed)
         chatLayout.addView(ImageButtonError)
@@ -403,7 +401,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         else if (PepperState == MAKE_ROBOT_LISTEN) {
 
             val phraseSet: PhraseSet = PhraseSetBuilder.with(qiContext)
-                .withTexts("hello")
+                .withTexts("Hello", "Heypepper", "pepper", "Hello Pepper", "Heey Pepper", "Hey", "Hey Pepper")
                 .build()
             val listen: Listen = ListenBuilder.with(qiContext)
                 .withPhraseSet(phraseSet)
@@ -413,14 +411,13 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
             Log.d("pepper:", " listen word: ${listenResult.heardPhrase.text}")
 
-            if  (listenResult.heardPhrase.text.toLowerCase() == "Hey Pepper"){
+            if  (listenResult.heardPhrase.text.toLowerCase() == "hey pepper"){
                 runOnUiThread {
                     startListen()
                 }
             }
             PepperState = 0
         } else if (PepperState == MAKE_THINKING) {
-            // this not Perfect good to use media
             val ret = "on it"
             val TheStringToSay = SayBuilder.with(qiContext)
                 .withText(ret)
@@ -435,7 +432,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             PepperState = 0
         }
         else if (PepperState == MAKE_ROBOT_SAD) {
-            val ret = "Oooooh !"
+            val ret = "Ooops!"
             val TheStringToSay = SayBuilder.with(qiContext)
                 .withText(ret)
                 .build()

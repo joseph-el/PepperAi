@@ -43,9 +43,8 @@ class AppViewModel(private val stt: VoiceRecorder) : ViewModel() {
                     val requestBody: RequestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
                         .addFormDataPart(
                             "file", file.getName(),
-                            RequestBody.create("audio/mp3".toMediaTypeOrNull(), file)
+                            RequestBody.create("audio/mpeg".toMediaTypeOrNull(), file)
                         )
-                        .addFormDataPart("some-field", "some-value")
                         .build()
 
                     val request = Request.Builder()

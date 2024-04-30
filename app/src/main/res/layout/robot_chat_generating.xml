@@ -12,7 +12,6 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.mikhaellopez.circularimageview.CircularImageView
-            android:id="@+id/image_view"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="5dp"
@@ -33,7 +32,6 @@
             android:orientation="vertical">
 
             <com.razzaghimahdi78.dotsloading.linear.LoadingWavy
-                android:id="@+id/loadingWavy"
                 android:layout_width="wrap_content"
                 android:layout_height="65dp"
                 android:background="@drawable/chat_bubbles_of_robot"

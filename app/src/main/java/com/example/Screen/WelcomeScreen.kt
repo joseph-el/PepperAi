@@ -27,6 +27,7 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 
+var messageList = mutableListOf<Pair<Int, String>>()
 
 class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
     private var humanAwareness: HumanAwareness? = null
@@ -53,7 +54,7 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
         supportActionBar?.hide()
         setContentView(R.layout.activity_welcome_screen)
         QiSDK.register(this, this)
-
+        messageList.clear()
         Log.d("pepper_state:", "Start The Welcome Screen !!")
 
 
@@ -127,7 +128,7 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
 
         // TODO (Change the animation)
         val animation_1: Animation = AnimationBuilder.with(qiContext)
-            .withResources(R.raw.attract_r05).build()
+            .withResources(R.raw.hello_04).build()
         val animate_1: Animate = AnimateBuilder.with(qiContext)
             .withAnimation(animation_1)
             .build()
@@ -138,12 +139,12 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
             0 ->    {}
             1 ->    {
                 animate_1.async().run()
-                TimeUnit.SECONDS.sleep(4L)
+                TimeUnit.SECONDS.sleep(1L)
                 TalkWithHuman.async().run()
             }
             else -> {
                 animate_1.async().run()
-                TimeUnit.SECONDS.sleep(4L)
+                TimeUnit.SECONDS.sleep(1L)
                 TalkWithMoreThanHuman.async().run()
             }
         }
@@ -151,8 +152,7 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
         retrieveCharacteristics(humans)
         if (AttentionHumanState == humans.size) {
             Log.d("pepper_state:", "retrieveCharacteristics state: no person take care with pepper ")
-
-            this.qiContext?.let { QiSDK.register(this, this) }
+            refocusIfTimeout()
             AttentionHumanState = 0
         } else {
             Log.d("pepper_state:", "retrieveCharacteristics state: active user with pepper !!")
@@ -171,12 +171,11 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
 
     }
 
-
     private fun refocusIfTimeout() {
         val currentTime = System.currentTimeMillis()
         val elapsedTime = currentTime - lastDetectedTime
         val timeout:Long = 5000 // 5 seconds timeout for rescan
-        val extendedTimeout: Long = 15000 // 15 seconds timeout if people are detected
+        val extendedTimeout: Long = 10000 // 15 seconds timeout if people are detected
 
 
         Log.d("pepper_state:", " iam refocusIfTimeout")
@@ -184,14 +183,14 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
         synchronized(this) {
             if (elapsedTime >= timeout && !timeoutOccurred) {
                 timeoutOccurred = true
-                // Schedule a task to find humans after a delay
+
                 Log.d("pepper_state:", "in if ")
                 executorService.schedule({
                     Log.d("pepper_state:", "rescan 1")
                     this.qiContext?.let { QiSDK.register(this, this) }
                 }, timeout, TimeUnit.MILLISECONDS)
             } else if (elapsedTime >= extendedTimeout && timeoutOccurred) {
-                // Schedule next scan with a longer delay if people were detected
+
                 Log.d("pepper_state:", "else if ")
                 executorService.schedule({
                     Log.d("pepper_state:", "rescan 2")
@@ -202,13 +201,4 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
         }
     }
 
-    private fun refocusIfTimeout__() {
-        val currentTime = System.currentTimeMillis()
-        val elapsedTime = currentTime - lastDetectedTime
-        val timeout = 50
-        if (elapsedTime >= timeout && !timeoutOccurred) {
-            timeoutOccurred = true
-
-        }
-    }
 }
