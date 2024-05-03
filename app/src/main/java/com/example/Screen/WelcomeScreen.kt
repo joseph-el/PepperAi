@@ -55,25 +55,22 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
         setContentView(R.layout.activity_welcome_screen)
         QiSDK.register(this, this)
         messageList.clear()
-        Log.d("pepper_state:", "Start The Welcome Screen !!")
-
-
         val about_button: Button = findViewById(R.id.About_button)
         val start_button: Button = findViewById(R.id.start_button)
 
         about_button.setOnClickListener {
             val intent = Intent(this, AboutScreen_1::class.java)
             startActivity(intent)
+            finish()
         }
         start_button.setOnClickListener {
             val intent = Intent(this, HomeScreen::class.java)
             startActivity(intent)
+            finish()
         }
     }
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
-        Log.d("pepper_state:", " ROBOT FOCUS !")
-
         this.qiContext = qiContext
         humanAwareness = qiContext?.humanAwareness
         findHumansAround()
@@ -88,27 +85,20 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
     override fun onRobotFocusRefused(reason: String?) {}
 
     private fun findHumansAround() {
-        Log.d("pepper_state:", "iam trying to find people!!")
         val humansAroundFuture: Future<List<Human>>? = humanAwareness?.async()?.humansAround
 
         if (humansAroundFuture != null) {
-            Log.d("pepper_state:", "i found human")
-
             try {
                 val humansAround = humansAroundFuture.get()
                 if (humansAround.isNotEmpty()) {
-                    Log.d("pepper_state:", "yes its true peepper see u")
-
                     timeoutOccurred = false
                     lastDetectedTime = System.currentTimeMillis()
                     PepperTalkWithDetectedHumans(humansAround)
                 }else {
-                    Log.d("pepper_state:", "No inside the humansAroundFuture ")
                     refocusIfTimeout()
                 }
             } catch (e: Exception) {  }
         } else {
-            Log.d("pepper_state:", "No human founded!!")
             refocusIfTimeout()
         }
     }
@@ -126,78 +116,69 @@ class WelcomeScreen : AppCompatActivity(),RobotLifecycleCallbacks {
             .withText("Hello folks! I'm feeling chatty. Who's up for a conversation?")
             .build()
 
-        // TODO (Change the animation)
+        // TODO (Change the animation): Done
         val animation_1: Animation = AnimationBuilder.with(qiContext)
             .withResources(R.raw.hello_04).build()
         val animate_1: Animate = AnimateBuilder.with(qiContext)
             .withAnimation(animation_1)
             .build()
-
-        Log.d("pepper_state:", "retrieveCharacteristics state: human size : ${humans.size}")
-
         when (humans.size) {
             0 ->    {}
             1 ->    {
                 animate_1.async().run()
-                TimeUnit.SECONDS.sleep(1L)
                 TalkWithHuman.async().run()
+
             }
             else -> {
                 animate_1.async().run()
-                TimeUnit.SECONDS.sleep(1L)
                 TalkWithMoreThanHuman.async().run()
             }
         }
-        // TODO("sleep")
+        // TODO("sleep"): done
         retrieveCharacteristics(humans)
         if (AttentionHumanState == humans.size) {
-            Log.d("pepper_state:", "retrieveCharacteristics state: no person take care with pepper ")
             refocusIfTimeout()
             AttentionHumanState = 0
-        } else {
-            Log.d("pepper_state:", "retrieveCharacteristics state: active user with pepper !!")
+            return
         }
+        refocusIfTimeout()
     }
 
     private fun retrieveCharacteristics(humans: List<Human>) {
-
-        Log.d("pepper_state:", "retrieveCharacteristics: ")
-
         humans.forEachIndexed { index, human ->
             val attentionState: AttentionState = human.attention
             AttentionHumanState += if (attentionState == AttentionState.UNKNOWN) 1 else 0
         }
-        Log.d("pepper_state:", "retrieveCharacteristics state: ${AttentionHumanState} ")
-
     }
 
     private fun refocusIfTimeout() {
         val currentTime = System.currentTimeMillis()
         val elapsedTime = currentTime - lastDetectedTime
-        val timeout:Long = 5000 // 5 seconds timeout for rescan
-        val extendedTimeout: Long = 10000 // 15 seconds timeout if people are detected
-
-
-        Log.d("pepper_state:", " iam refocusIfTimeout")
+        val timeout:Long = 5000
+        val extendedTimeout: Long = 10000
 
         synchronized(this) {
+
             if (elapsedTime >= timeout && !timeoutOccurred) {
+                Log.d("callback: ", " detected ")
+
                 timeoutOccurred = true
 
-                Log.d("pepper_state:", "in if ")
                 executorService.schedule({
-                    Log.d("pepper_state:", "rescan 1")
                     this.qiContext?.let { QiSDK.register(this, this) }
                 }, timeout, TimeUnit.MILLISECONDS)
+
+
             } else if (elapsedTime >= extendedTimeout && timeoutOccurred) {
+                Log.d("callback: ", "not detected ")
 
-                Log.d("pepper_state:", "else if ")
                 executorService.schedule({
-                    Log.d("pepper_state:", "rescan 2")
-
+                    Log.d("callback: ", " reinit ")
                     this.qiContext?.let { QiSDK.register(this, this) }
                 }, extendedTimeout, TimeUnit.MILLISECONDS)
-            }else {}
+            } else {
+
+            }
         }
     }
 

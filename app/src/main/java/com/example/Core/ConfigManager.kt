@@ -17,14 +17,11 @@ class ConfigManager(private val fileName: String) {
             val openDir = File(Environment.getExternalStorageDirectory(), "Recordings")
             if (!openDir.exists()) {
 
-                Log.d("config_file", ": dir")
-
                 fileFound = false
                 return
             }
             val file = File(openDir, fileName)
             if (!file.exists()) {
-                Log.d("config_file", ": file")
                 fileFound = false
                 return
             }
@@ -33,7 +30,6 @@ class ConfigManager(private val fileName: String) {
             fileFound = true
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.d("config_file", ": exc : ${e.localizedMessage}")
             fileFound = false
         }
     }

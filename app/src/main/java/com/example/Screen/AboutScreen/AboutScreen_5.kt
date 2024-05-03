@@ -2,6 +2,7 @@ package com.example.Screen.AboutScreen
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -27,11 +28,6 @@ class AboutScreen_5 : AppCompatActivity(), RobotLifecycleCallbacks {
         super.onUserInteraction()
         inactivityTimer.onUserInteraction()
     }
-    override fun onDestroy() {
-        inactivityTimer.stop()
-        super.onDestroy()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -53,15 +49,28 @@ class AboutScreen_5 : AppCompatActivity(), RobotLifecycleCallbacks {
         val left_button: Button = findViewById(R.id.left_button_about_5)
 
         next_button.setOnClickListener {
+            inactivityTimer.stop()
+
             val intent = Intent(this, HomeScreen::class.java)
             startActivity(intent)
+            finish()
         }
         left_button.setOnClickListener {
+            inactivityTimer.stop()
             val intent = Intent(this, AboutScreen_4::class.java)
             startActivity(intent)
-        }
+            finish()
 
+        }
     }
+
+    override fun onDestroy() {
+        Log.d("callback: ", "iam in destroy fun ")
+        inactivityTimer.stop()
+        super.onDestroy()
+    }
+
+
     override fun onRobotFocusGained(qiContext: QiContext?) {
         val ret = "I was crafted by a student from School 1337, aimed at enhancing how humans and robots interact. Excited to show you what I can do!"
 

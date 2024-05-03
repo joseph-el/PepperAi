@@ -2,6 +2,7 @@ package com.example.Screen.AboutScreen
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -27,10 +28,7 @@ class AboutScreen_1 : AppCompatActivity(), RobotLifecycleCallbacks {
         super.onUserInteraction()
         inactivityTimer.onUserInteraction()
     }
-    override fun onDestroy() {
-        inactivityTimer.stop()
-        super.onDestroy()
-    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,12 +46,21 @@ class AboutScreen_1 : AppCompatActivity(), RobotLifecycleCallbacks {
         supportActionBar?.hide()
         setContentView(R.layout.activity_about_screen1)
         QiSDK.register(this, this)
+
         inactivityTimer = InactivityTimer(this, 420000)
+
         val next_button: Button = findViewById(R.id.about_1_next_button)
         next_button.setOnClickListener {
             val intent = Intent(this, AboutScreen_2::class.java)
             startActivity(intent)
+            finish()
         }
+    }
+
+    override fun onDestroy() {
+        Log.d("callback: ", "iam in destroy fun ")
+        inactivityTimer.stop()
+        super.onDestroy()
     }
 
     override fun onRobotFocusGained(qiContext: QiContext?) {

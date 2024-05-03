@@ -88,7 +88,7 @@
         android:fontFamily="@font/poppins_semibold"
         android:text="Click On Button\nTo Take Picture"
         android:textColor="#FFFFFF"
-        android:textSize="40sp"
+        android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/send_mail_button"

@@ -32,7 +32,7 @@ class EmailSender(private val context: Context) {
             context.startActivity(Intent.createChooser(emailIntent, "Send email"))
             isEmailSent = true
         } catch (e: Exception) {
-            Log.d("mailSender:", "exp ${e.localizedMessage}" )
+            //Log.d("mailSender:", "exp ${e.localizedMessage}" )
             isEmailSent = false
             e.printStackTrace()
         }

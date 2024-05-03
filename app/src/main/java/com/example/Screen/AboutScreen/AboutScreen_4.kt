@@ -2,6 +2,7 @@ package com.example.Screen.AboutScreen
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -25,10 +26,6 @@ class AboutScreen_4 : AppCompatActivity(), RobotLifecycleCallbacks {
     override fun onUserInteraction() {
         super.onUserInteraction()
         inactivityTimer.onUserInteraction()
-    }
-    override fun onDestroy() {
-        inactivityTimer.stop()
-        super.onDestroy()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,14 +51,27 @@ class AboutScreen_4 : AppCompatActivity(), RobotLifecycleCallbacks {
         val left_button: Button = findViewById(R.id.left_button_about_4)
 
         next_button.setOnClickListener {
+            inactivityTimer.stop()
+
             val intent = Intent(this, AboutScreen_5::class.java)
             startActivity(intent)
+            finish()
         }
         left_button.setOnClickListener {
+            inactivityTimer.stop()
+
             val intent = Intent(this, AboutScreen_3::class.java)
             startActivity(intent)
+            finish()
         }
     }
+
+    override fun onDestroy() {
+        Log.d("callback: ", "iam in destroy fun ")
+        inactivityTimer.stop()
+        super.onDestroy()
+    }
+
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
         val ret = "Need to talk? I’m here for conversations, help, or just a casual chat. Let’s discuss whatever’s on your mind!"

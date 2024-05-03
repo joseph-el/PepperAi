@@ -12,7 +12,7 @@ class VoiceRecorder(private val outputDir: File) {
     var isRecording = false
     var onRecordingFinishedListener: (() -> Unit)? = null
 
-    private val MIN_SILENCE_DURATION_MS = 2200 // LAST 1200
+    private val MIN_SILENCE_DURATION_MS = 2200 // TODO: make test it: Done
     private val SILENCE_THRESHOLD_DB = 0
     private var lastSilenceTime: Long = 0
 
@@ -25,13 +25,13 @@ class VoiceRecorder(private val outputDir: File) {
         if (mediaRecorder == null) {
             mediaRecorder = MediaRecorder()
             try {
-                val fileName = "voice_${System.currentTimeMillis()}.mp3"
+                val fileName = "voice_${System.currentTimeMillis()}.ogg"
                 outputFile = File(outputDir, fileName)
                 mediaRecorder?.apply {
                     setAudioSource(MediaRecorder.AudioSource.MIC)
-                    setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                    setOutputFormat(MediaRecorder.OutputFormat.OGG)
                     setOutputFile(outputFile?.absolutePath)
-                    setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.OPUS)
                     prepare()
                     start()
                     lastSilenceTime = System.currentTimeMillis()
@@ -48,6 +48,7 @@ class VoiceRecorder(private val outputDir: File) {
                     }.start()
                 }
             } catch (e: IOException) {
+                Log.d("iam_here_", "hhhhhhhhhhhhhh ${e.localizedMessage}")
                 e.printStackTrace()
             }
         }
@@ -74,8 +75,8 @@ class VoiceRecorder(private val outputDir: File) {
     }
 
     fun deleteRecordedFile() {
-        outputFile?.delete()
-        outputFile = null
+        //outputFile?.delete()
+        //outputFile = null
     }
 
     fun processAudioLevel(audioLevel: Int) {

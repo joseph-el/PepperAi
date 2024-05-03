@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  flowise:
+    build: ./src/flowise
+    ports:
+      - "3000:3000"
+
+  flaskassemblyai:
+    build: ./src/Flask
+    ports:
+      - "5000:5000"

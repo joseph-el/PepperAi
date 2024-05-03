@@ -2,6 +2,7 @@ package com.example.Screen
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -20,7 +21,8 @@ import com.example.empathymap.R
 
 class HomeScreen : AppCompatActivity() , RobotLifecycleCallbacks {
     private lateinit var inactivityTimer: InactivityTimer
-
+    private lateinit var start_chat_button: Button
+    private lateinit var take_picture_button: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,30 +40,34 @@ class HomeScreen : AppCompatActivity() , RobotLifecycleCallbacks {
         supportActionBar?.hide()
         setContentView(R.layout.activity_home_screen)
         QiSDK.register(this, this)
+
         inactivityTimer = InactivityTimer(this, 420000)
 
-        val start_chat_button: Button = findViewById(R.id.start_chat_button)
-        val take_picture_button: Button = findViewById(R.id.take_picture_button)
+        start_chat_button = findViewById(R.id.start_chat_button)
+        take_picture_button = findViewById(R.id.take_picture_button)
 
         start_chat_button.setOnClickListener {
             val intent = Intent(this, SelectContextScreen::class.java)
             startActivity(intent)
+            finish()
         }
         take_picture_button.setOnClickListener {
 
             val intent = Intent(this, TakePictureScreen::class.java)
             startActivity(intent)
+            finish()
         }
     }
 
+    override fun onDestroy() {
+        Log.d("callback: ", "iam in destroy fun ")
+        inactivityTimer.stop()
+        super.onDestroy()
+    }
 
     override fun onUserInteraction() {
         super.onUserInteraction()
         inactivityTimer.onUserInteraction()
-    }
-    override fun onDestroy() {
-        inactivityTimer.stop()
-        super.onDestroy()
     }
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
@@ -76,12 +82,16 @@ class HomeScreen : AppCompatActivity() , RobotLifecycleCallbacks {
         val animate_6: Animate = AnimateBuilder.with(qiContext)
             .withAnimation(animation_6)
             .build()
-
-
-        TheStringToSay.async().run()
-
+        runOnUiThread {
+            start_chat_button.isEnabled = false
+            take_picture_button.isEnabled = false
+        }
         animate_6.async().run()
-
+        TheStringToSay.run()
+        runOnUiThread {
+            start_chat_button.isEnabled = true
+            take_picture_button.isEnabled = true
+        }
     }
 
     override fun onRobotFocusLost() {}

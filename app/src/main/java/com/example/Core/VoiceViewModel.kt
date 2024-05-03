@@ -29,6 +29,13 @@ class AppViewModel(private val stt: VoiceRecorder) : ViewModel() {
         .build()
     val state = _state.asStateFlow()
 
+    fun resetError() {
+        _state.value = _state.value.copy(
+            display = "",
+            error = false
+        )
+    }
+
     fun send(action: AppAction) {
         when (action) {
             AppAction.StartRecord -> {
@@ -60,20 +67,33 @@ class AppViewModel(private val stt: VoiceRecorder) : ViewModel() {
                             } catch (e: Exception) {
                                 Log.d("EXECPTION:", " in ${e.localizedMessage}")
                                 _state.value = _state.value.copy(
-                                    display = null
+                                    display = null,
+                                    error = true
                                 )
                             }
                         }
                         override fun onResponse(call: Call, response: Response) {
+                            if (response.isSuccessful) {
                             try {
                                 val jsonObject = JSONObject(response.body?.string())
                                 var ret = jsonObject.getString("transcript")
+                                Log.d("EXECPTION:", "check Jason $jsonObject")
+                                Log.d("EXECPTION:", "check |$ret|")
                                 _state.value = _state.value.copy(
-                                    display = ret
+                                    display = ret,
+                                    error = false
                                 )
                             } catch(e: Exception) {
                                 _state.value = _state.value.copy(
-                                    display = ""
+                                    display = "",
+                                    error = true
+                                )
+                            }
+                            } else  {
+                                Log.d("EXECPTION:", "Unsuccessful response: ${response.code}")
+                                _state.value = _state.value.copy(
+                                    display = "",
+                                    error = true
                                 )
                             }
                         }
@@ -85,7 +105,8 @@ class AppViewModel(private val stt: VoiceRecorder) : ViewModel() {
 }
 
 data class AppState(
-    val display: String? = ""
+    val display: String? = "",
+    val error:Boolean = false
 )
 
 sealed class AppAction {

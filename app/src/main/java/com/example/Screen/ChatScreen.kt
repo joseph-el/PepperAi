@@ -86,11 +86,15 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
 
     fun startListen() {
+
+        inactivityTimer.onUserInteraction()
         Voice_Gif.isEnabled = false
         this.qiContext?.let { QiSDK.unregister(this, this) }
         mediaPlayerStart.start()
         Voice_Gif.setImageResource(R.drawable.final_edited)
+        inactivityTimer.onUserInteraction()
         captureAndTranscribe {
+            MakeRobotThinking()
             mediaPlayerStop.start()
         }
     }
@@ -142,6 +146,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             Back_button.setOnClickListener {
                 val intent = Intent(this, HomeScreen::class.java)
                 startActivity(intent)
+                finish()
             }
 
             sendButton.setOnClickListener {
@@ -169,18 +174,17 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
             lifecycleScope.launch {
                 viewModel.state.collect { state ->
-                    Voice_Gif.setImageResource(R.drawable.pepper_listen_icon) // siri_voice
                     Recorder.deleteRecordedFile()
-                    if (state.display?.isNotEmpty() == true) {
+                    if (state.display != null && state.display?.isNotEmpty() == true && state.error == false) {
                         UpdateNode(IS_NOT_ROBOT)
                         messageList.add((IS_LAST_ITEM or IS_NOT_ROBOT) to state.display)
                         SviewModel.summarize(state.display)
-                        MakeRobotThinking()
-                    } else if (state.display?.isNotEmpty() == false) {
+                    } else if (state.error == true) {
                         Init()
+                        viewModel.resetError()
                         SviewModel.resetUiStateToInitial()
                         Log.d("EXECPTION:", "IAM HERE TO RE INIT SCREEN!! ")
-                    } else {
+                    } else if (state.display == null && state.error == true) {
                         Log.d("EXECPTION:", "HTTP ERROR!! ")
                         SetupErrorGif()
                     }
@@ -192,6 +196,9 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
     private fun MakeRobotThinking() {
         PepperState = MAKE_THINKING
         SviewModel.setUiStateToLoading()
+        runOnUiThread {
+            Voice_Gif.setImageResource(R.drawable.gif_say) /* siri_voice */
+        }
         this.qiContext?.let { QiSDK.register(this, this) }
     }
 
@@ -205,7 +212,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
-        params.setMargins(370, 50, 0, 0) // left, top, right, bottom
+        params.setMargins(370, 50, 0, 0)
         ImageButtonError.layoutParams = params
         ImageButtonError.setImageResource(R.drawable.error_robot_failed)
         chatLayout.addView(ImageButtonError)
@@ -218,6 +225,7 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         ImageButtonError.setOnClickListener {
             Voice_Gif.visibility = View.VISIBLE
             ImageButtonError.visibility = View.GONE
+            viewModel.resetError()
             updateScreen()
             Init()
         }
@@ -388,20 +396,17 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
         this.qiContext = qiContext
-
         if ( PepperState == MAKE_ROBOT_SAY ) {
             val Make_Robot_Say = SayBuilder.with(qiContext).withText(markdownToPlainText(ToShortMessage)).build()
             Make_Robot_Say.run()
             runOnUiThread {
                 Init()
             }
-            Log.d("pepper:", " re init")
         }
-
         else if (PepperState == MAKE_ROBOT_LISTEN) {
 
             val phraseSet: PhraseSet = PhraseSetBuilder.with(qiContext)
-                .withTexts("Hello", "Heypepper", "pepper", "Hello Pepper", "Heey Pepper", "Hey", "Hey Pepper")
+                .withTexts( "pepper", "Hello Pepper", "Hey Pepper", "Hay pepper", "Hi pepper")
                 .build()
             val listen: Listen = ListenBuilder.with(qiContext)
                 .withPhraseSet(phraseSet)
@@ -411,14 +416,17 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
             Log.d("pepper:", " listen word: ${listenResult.heardPhrase.text}")
 
-            if  (listenResult.heardPhrase.text.toLowerCase() == "hey pepper"){
+            if  (listenResult.heardPhrase.text.toLowerCase() == "hey pepper" || listenResult.heardPhrase.text.toLowerCase() == "pepper"
+                || listenResult.heardPhrase.text.toLowerCase() == "hello pepper" || listenResult.heardPhrase.text.toLowerCase() == "hay pepper"
+                || listenResult.heardPhrase.text.toLowerCase() == "hi pepper"
+                ){
                 runOnUiThread {
                     startListen()
                 }
             }
             PepperState = 0
         } else if (PepperState == MAKE_THINKING) {
-            val ret = "on it"
+            val ret = "on it !"
             val TheStringToSay = SayBuilder.with(qiContext)
                 .withText(ret)
                 .build()
@@ -451,99 +459,20 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         this.qiContext = null
     }
 
+    override fun onDestroy() {
+        Log.d("callback: ", "iam in destroy fun ")
+        inactivityTimer.stop()
+        super.onDestroy()
+    }
+
+
+
     override fun onUserInteraction() {
         super.onUserInteraction()
         inactivityTimer.onUserInteraction()
-    }
-
-    override fun onDestroy() {
-        inactivityTimer.stop()
-        super.onDestroy()
     }
 
     override fun onRobotFocusRefused(reason: String?) {}
 
 }
 
-
-
-
-/*
-    private fun captureAndTranscribe_() {
-
-        viewModel.send(AppAction.StartRecord)
-        // remove the button of start listen and display gif
-
-        Log.d("voice_start", ": the voice is start recording")
-
-        while (Recorder.isRecording) {} // loop until finish
-
-        Log.d("voice_start", ": the voice is STOP recording")
-
-        var voice_path = Recorder.getRecordedFilePath()!!
-
-        viewModel.send(AppAction.SetUpHttpRequest(voice_path))
-    }
-
-
-     */
-
-
-// Get OpenAI key
-// Hey pepper and button 2 listen
-// Gif for Error
-// Gif for Listing
-// Gif for
-
-/*
-
-                if (!Showing)
-            Showing = true
-        else
-            Showing = false
-
-        if (Showing) {
-            Voice_Gif.visibility = View.VISIBLE
-            messageInput.visibility = View.GONE
-            sendButton.visibility = View.GONE
-        } else {
-            Voice_Gif.visibility = View.GONE
-            messageInput.visibility = View.VISIBLE
-            sendButton.visibility = View.VISIBLE
-        }
-
- */
-
-// old
-/*
-        voice_button.setOnTouchListener { view, motionEvent ->
-            when (motionEvent.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    Toast.makeText(this, "Pepper Listen!", Toast.LENGTH_LONG).show()
-                    try {
-                        if (permission) {
-                            viewModel.send(AppAction.StartRecord)
-                        } else {
-                            launcher.launch(Manifest.permission.RECORD_AUDIO)
-                        }
-                    } catch (e: Exception) {
-                        Toast.makeText(this, e.message ?: "An error occurred", Toast.LENGTH_LONG).show()
-                    }
-                    true
-                }
-                MotionEvent.ACTION_UP -> {
-                    try {
-                        viewModel.send(AppAction.EndRecord)
-                    } catch (e: Exception) {
-                        Toast.makeText(this, e.message ?: "An error occurred", Toast.LENGTH_LONG).show()
-                    }
-                    view.performClick()
-                    true
-                }
-                else -> false
-            }
-        }
-
-
-
- */

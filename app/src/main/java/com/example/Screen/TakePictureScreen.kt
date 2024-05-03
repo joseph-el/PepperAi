@@ -17,6 +17,7 @@ import com.aldebaran.qi.sdk.`object`.image.TimestampedImageHandle
 import com.aldebaran.qi.Future
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -53,6 +54,9 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         super.onUserInteraction()
         inactivityTimer.onUserInteraction()
     }
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +96,7 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         backButton.setOnClickListener {
             val intent = Intent(this, HomeScreen::class.java)
             startActivity(intent)
+            finish()
         }
         retakePicturesImageView.setOnClickListener {
             DestroyAll()
@@ -127,7 +132,9 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
         }
     }
     private fun DestroyAll() {
+        TextGuide.textSize = 30.toFloat()
         TextGuide.text = "Click On Button\nTo Take Picture"
+
         if (qiContext == null) {
             return
         }
@@ -204,13 +211,16 @@ class TakePictureScreen : AppCompatActivity(), RobotLifecycleCallbacks {
             .build()
 
         runOnUiThread {
+            TextGuide.textSize = 30.toFloat()
             TextGuide.text = "      Make Smile"
         }
+
         say1.async().run()
         TimeUnit.SECONDS.sleep(2L)
         runOnUiThread {
             TextGuide.text = "               3"
         }
+
         say2.async().run()
         TimeUnit.SECONDS.sleep(2L)
         runOnUiThread {

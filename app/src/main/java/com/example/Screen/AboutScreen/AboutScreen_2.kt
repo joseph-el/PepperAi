@@ -2,6 +2,7 @@ package com.example.Screen.AboutScreen
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -21,14 +22,9 @@ import com.example.empathymap.R
 class AboutScreen_2 : AppCompatActivity(), RobotLifecycleCallbacks {
     private lateinit var inactivityTimer: InactivityTimer
 
-
     override fun onUserInteraction() {
         super.onUserInteraction()
         inactivityTimer.onUserInteraction()
-    }
-    override fun onDestroy() {
-        inactivityTimer.stop()
-        super.onDestroy()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,13 +50,22 @@ class AboutScreen_2 : AppCompatActivity(), RobotLifecycleCallbacks {
         next_button.setOnClickListener {
             val intent = Intent(this, AboutScreen_3::class.java)
             startActivity(intent)
+            finish()
         }
         left_button.setOnClickListener {
             val intent = Intent(this, AboutScreen_1::class.java)
             startActivity(intent)
+            finish()
         }
 
     }
+
+    override fun onDestroy() {
+        Log.d("callback: ", "iam in destroy fun ")
+        inactivityTimer.stop()
+        super.onDestroy()
+    }
+
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
 

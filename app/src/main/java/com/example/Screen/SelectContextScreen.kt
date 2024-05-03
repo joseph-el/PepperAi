@@ -2,6 +2,7 @@ package com.example.Screen
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -17,6 +18,7 @@ import com.example.empathymap.R
 class SelectContextScreen : AppCompatActivity() {
 
     private lateinit var inactivityTimer: InactivityTimer
+
     private lateinit var educationButton: Button
     private lateinit var adventureButton: Button
     private lateinit var comedyButton: Button
@@ -32,12 +34,12 @@ class SelectContextScreen : AppCompatActivity() {
         super.onUserInteraction()
         inactivityTimer.onUserInteraction()
     }
+
     override fun onDestroy() {
+        Log.d("callback: ", "iam in destroy fun  in select context ")
         inactivityTimer.stop()
         super.onDestroy()
     }
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,8 +115,10 @@ class SelectContextScreen : AppCompatActivity() {
             if (textView.text.isEmpty()) {
                 Toast.makeText(this, "PepperAi: You Need To Select Context First", Toast.LENGTH_LONG).show()
             } else {
+                inactivityTimer?.stop()
                 val intent = Intent(this, ChatScreen::class.java)
                 startActivity(intent)
+                finish()
             }
         }
     }
