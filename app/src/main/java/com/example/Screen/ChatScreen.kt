@@ -255,7 +255,6 @@ class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
                 is SummarizeUiState.Initial -> {  false  }
                 is SummarizeUiState.Loading -> {  true   }
                 is SummarizeUiState.Success -> {
-                    Init()
                     UpdateNode(IS_ROBOT)
                     messageList.add((IS_ROBOT or IS_LAST_ITEM) to newState.outputText)
                     ToShortMessage = newState.outputText

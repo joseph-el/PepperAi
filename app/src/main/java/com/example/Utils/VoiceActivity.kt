@@ -25,13 +25,13 @@ class VoiceRecorder(private val outputDir: File) {
         if (mediaRecorder == null) {
             mediaRecorder = MediaRecorder()
             try {
-                val fileName = "voice_${System.currentTimeMillis()}.ogg"
+                val fileName = "voice_${System.currentTimeMillis()}.m4a"
                 outputFile = File(outputDir, fileName)
                 mediaRecorder?.apply {
                     setAudioSource(MediaRecorder.AudioSource.MIC)
-                    setOutputFormat(MediaRecorder.OutputFormat.OGG)
+                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                     setOutputFile(outputFile?.absolutePath)
-                    setAudioEncoder(MediaRecorder.AudioEncoder.OPUS)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                     prepare()
                     start()
                     lastSilenceTime = System.currentTimeMillis()
@@ -40,15 +40,14 @@ class VoiceRecorder(private val outputDir: File) {
                         while (isRecording) {
                             val amplitude = getMaxAmplitude()
                             Log.d("YourTag", "amplitude: $amplitude")
-                            val audioLevel = amplitude / 2000 // Adjust as needed
+                            val audioLevel = amplitude / 2000
                             Log.d("YourTag", "the level: $audioLevel")
                             processAudioLevel(audioLevel)
-                            Thread.sleep(100) // Adjust as needed, this controls how often you check the amplitude
+                            Thread.sleep(100)
                         }
                     }.start()
                 }
             } catch (e: IOException) {
-                Log.d("iam_here_", "hhhhhhhhhhhhhh ${e.localizedMessage}")
                 e.printStackTrace()
             }
         }
@@ -75,8 +74,8 @@ class VoiceRecorder(private val outputDir: File) {
     }
 
     fun deleteRecordedFile() {
-        //outputFile?.delete()
-        //outputFile = null
+        outputFile?.delete()
+        outputFile = null
     }
 
     fun processAudioLevel(audioLevel: Int) {

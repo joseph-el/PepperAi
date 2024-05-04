@@ -1,3 +1,4 @@
 assemblyai==0.26.0
 Flask==3.0.3
 requests==2.31.0
+OpenAI==1.25.1

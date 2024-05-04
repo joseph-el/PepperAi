@@ -1,52 +1,47 @@
 import os
 from flask import Flask, request, jsonify
-import requests
+from openai import OpenAI
 
 app = Flask(__name__)
 
-OPENAI_API_KEY = "sk-proj-TkbgS5DiXueXRs1Y7ZtMT3BlbkFJXYy1tmPL0qMzlOh1Sa8w"
+client = OpenAI(api_key="sk-proj-TkbgS5DiXueXRs1Y7ZtMT3BlbkFJXYy1tmPL0qMzlOh1Sa8w")
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe_audio():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-
-    if file and allowed_file(file.filename):
-        file_path = "/tmp/uploaded_audio.mp3"
-        file.save(file_path)
-
-        files = {
-            'file': ('file', open(file_path, 'rb')),
-            'model': (None, 'whisper-1')
-        }
-
-        response = requests.post(
-            'https://api.openai.com/v1/audio/transcriptions',
-            headers={'Authorization': f'Bearer {OPENAI_API_KEY}'},
-            files=files
-        )
+    try:
+        print("Received request:")
+        print("Request Method:", request.method)
+        print("Request Headers:", request.headers)
+        print("Request Files:", request.files)
+        print("Request Form Data:", request.form)
         
-        result = response.json()
+        if 'file' not in request.files:
+            return jsonify({"error": "No file part"}), 400
+    
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+    
+        if file and allowed_file(file.filename):
+            file_path = "/tmp/uploaded_audio.m4a"
+            file.save(file_path)
 
-        print("Received response from OpenAI:")
-        print("Response Status Code:", response.status_code)
-        print("Response Body:", result)
-        
-        os.remove(file_path)
-
-        if response.status_code == 200:
+            with open(file_path, "rb") as audio_file:
+                transcription = client.audio.transcriptions.create(
+                    model="whisper-1", 
+                    file=audio_file
+                )
+                result = {"transcript": transcription.text}
+            
+            os.remove(file_path)
             return jsonify(result), 200
         else:
-            return jsonify({"error": "Failed to transcribe audio", "details": result}), response.status_code
-    else:
-        return jsonify({"error": "File type not allowed"}), 400
+            return jsonify({"error": "File type not allowed"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500    
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'mp3'
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'm4a'
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)

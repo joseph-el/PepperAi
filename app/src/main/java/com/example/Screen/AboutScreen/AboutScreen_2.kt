@@ -69,7 +69,7 @@ class AboutScreen_2 : AppCompatActivity(), RobotLifecycleCallbacks {
 
     override fun onRobotFocusGained(qiContext: QiContext?) {
 
-        val ret = "Want a photo? Just ask, and I’ll snap it and send it directly to your Gmail. Capturing memories has never been easier! ooooooo yaaaaaah "
+        val ret = "Want a photo? Just ask, and I’ll snap it and send it directly to your Gmail. Capturing memories has never been easier!"
         val TheStringToSay = SayBuilder.with(qiContext)
             .withText(ret)
             .build()
