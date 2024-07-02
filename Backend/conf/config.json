@@ -1,5 +1,5 @@
 {
-  "ip-address": "10.32.80.93",
+  "ip-address": "HOST_IP_ADDRESS",
   "port":"3000",
   "route": "/api/v1/prediction/64439968-436e-4ad5-9b39-c1b3f016b977",
   "transcribe-port": "5000",
