@@ -2,11 +2,15 @@ version: '3'
 
 services:
   flowise:
+    container_name: flowise
     build: ./src/flowise
     ports:
       - "3000:3000"
+    init: true
 
   flaskassemblyai:
+    container_name: flaskassemblyai
     build: ./src/Flask
     ports:
       - "5000:5000"
+    init: true
