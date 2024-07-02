@@ -57,7 +57,7 @@ class Artificial_intelligence_model() : ViewModel() {
         return "As a Pepper robot, for the category [$category] with details [$categoryInfo], " +
                 "please provide a concise and relevant response to: [$inputText]. " +
                 "If the query does not align with the category, utilize creative reasoning. " +
-                "Ensure the response is short (focus on the response should be shorted for make pepper robot say it easy), plain text, and free from formatting or links."
+                "Ensure the response (focus on the response should be shorted for make pepper robot say it easy), plain text, and free from formatting or links."
     }
 
     fun generateMessage(prompt: String) {
