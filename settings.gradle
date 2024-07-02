@@ -19,6 +19,9 @@ dependencyResolutionManagement {
         maven {
             url "https://artifactory.qiscus.com/artifactory/qiscus-library-open-source"
         }
+        maven {
+            url "https://artifactory.qiscus.com/artifactory/qiscus-sdk-android"
+        }
     }
 }
 rootProject.name = "PepperAi"
