@@ -4,7 +4,7 @@ from openai import OpenAI
 
 app = Flask(__name__)
 
-client = OpenAI(api_key="sk-proj-TkbgS5DiXueXRs1Y7ZtMT3BlbkFJXYy1tmPL0qMzlOh1Sa8w")
+client = OpenAI(api_key="OPENAI_API_KEY")
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe_audio():
