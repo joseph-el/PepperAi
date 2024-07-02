@@ -60,6 +60,7 @@ val MAKE_ROBOT_LISTEN: Int = (1 shl 4)
 val MAKE_ROBOT_SAY: Int    = (1 shl 5)
 val MAKE_THINKING: Int     = (1 shl 6)
 val MAKE_ROBOT_SAD: Int = (1 shl 7)
+val MAKE_ROBOT_ERROR: Int = (1 shl 8)
 
 class ChatScreen : AppCompatActivity(), RobotLifecycleCallbacks {
 
