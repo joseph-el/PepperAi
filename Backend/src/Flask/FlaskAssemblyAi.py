@@ -4,7 +4,7 @@ import assemblyai as aai
 
 app = Flask(__name__)
 
-aai.settings.api_key = "82c5a4ed58304dbfa6c09d094fc68711"
+aai.settings.api_key = "ASSEMBLYAI_API_KEY"
 transcriber = aai.Transcriber()
 
 @app.route('/transcribe', methods=['POST'])
