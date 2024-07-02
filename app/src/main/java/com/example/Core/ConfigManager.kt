@@ -16,7 +16,7 @@ class ConfigManager(private val fileName: String) {
         try {
             val openDir = File(Environment.getExternalStorageDirectory(), "Recordings")
             if (!openDir.exists()) {
-
+                
                 fileFound = false
                 return
             }
