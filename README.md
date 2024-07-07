@@ -26,4 +26,4 @@ PepperAI is an innovative project designed to enhance human-robot interaction us
   - **APIs**: OpenAI API Gemini API  AssemblyAI API
 - **Robot SDK**: Pepper SDK
 ## LinkedIn Post
- - Check out my [LinkedIn](https://www.linkedin.com/posts/youssef-el-idrissi-85a299273_im-excited-to-share-my-latest-project-where-activity-7191817490958594049--kom?utm_source=share&utm_medium=member_desktop) post about this project for more details and insights.
+ - Check out my [LinkedIn](https://www.linkedin.com/posts/y-elidrissi_im-excited-to-share-my-latest-project-where-activity-7191817490958594049-PXHp?utm_source=share&utm_medium=member_desktop) post about this project for more details and insights.
