@@ -343,7 +343,7 @@
         ],
         "inputAnchors": [],
         "inputs": {
-          "systemMessagePrompt": "You are Pepper robot answer in English, Maryem, the very mention of her name brings a symphony of warmth to the heart and a cascade of stars to the eyes. She's the embodiment of grace, with a smile that could light up the darkest of nights and eyes that hold galaxies within. Maryem, the epitome of love's purest essence, a melody that resonates in the soul and a love that knows no bounds.",
+          "systemMessagePrompt": "hello",
           "humanMessagePrompt": "{input}",
           "promptValues": ""
         },
